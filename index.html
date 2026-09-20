@@ -32,6 +32,7 @@
             width: 100%;
             height: calc(100vh - 80px);
             overflow: hidden;
+            touch-action: none;
         }
 
         #carte-container svg {
@@ -752,7 +753,7 @@
                 <div id="compteur">0 / 34746</div>
             </div>
             <div id="message-erreur"></div>
-            <div id="zone-saisie">
+            <form id="zone-saisie">
                 <input
                     type="text"
                     id="reponse"
@@ -762,7 +763,8 @@
                 <select id="departement">
                     <option value="">Tous les départements</option>
                 </select>
-            </div>
+            <button type="submit" style="display: none;"></button>
+            </form>
             <div id="boutons-partie">
                 <button id="reset-vue">Réinitialiser<br>le zoom</button>
                 <button id="nouvelle-partie">Nouvelle partie</button>
@@ -1261,39 +1263,168 @@
                     { passive: false }
                 );
 
-                carteContainer.addEventListener(
-                    "mousedown",
-                    function(event) {
+                let animationEnCours = false;
+
+                const pointeurs = new Map();
+
+                let distancePinceeInitiale = 0;
+                let zoomPinceeInitial = 1;
+                let pointPinceeX = 0;
+                let pointPinceeY = 0;
+                let pinceeActive = false;
+
+                function obtenirDistancePointeurs() {
+                    const [premier, deuxieme] = pointeurs.values();
+
+                    return Math.hypot(
+                        deuxieme.x - premier.x,
+                        deuxieme.y - premier.y
+                    );
+                }
+
+                function obtenirCentrePointeurs() {
+                    const [premier, deuxieme] = pointeurs.values();
+
+                    return {
+                        x: (premier.x + deuxieme.x) / 2,
+                        y: (premier.y + deuxieme.y) / 2
+                    };
+                }
+
+                carteContainer.addEventListener("pointerdown", function(event) {
+                    pointeurs.set(event.pointerId, {
+                        x: event.clientX,
+                        y: event.clientY
+                    });
+
+                    carteContainer.setPointerCapture(event.pointerId);
+
+                    if (pointeurs.size === 1) {
                         enDeplacement = true;
                         sourisX = event.clientX;
                         sourisY = event.clientY;
+                        pinceeActive = false;
                     }
+
+                    if (pointeurs.size === 2) {
+                        enDeplacement = false;
+                        pinceeActive = true;
+
+                        distancePinceeInitiale = obtenirDistancePointeurs();
+                        zoomPinceeInitial = zoom;
+
+                        const centre = obtenirCentrePointeurs();
+                        const rect = carteContainer.getBoundingClientRect();
+
+                        pointPinceeX =
+                            (centre.x - rect.left - offsetX) / zoom;
+
+                        pointPinceeY =
+                            (centre.y - rect.top - offsetY) / zoom;
+                    }
+                });
+
+                carteContainer.addEventListener("pointermove", function(event) {
+                    if (!pointeurs.has(event.pointerId)) {
+                        return;
+                    }
+
+                    pointeurs.set(event.pointerId, {
+                        x: event.clientX,
+                        y: event.clientY
+                    });
+
+                    if (pointeurs.size === 2 && pinceeActive) {
+                        const nouvelleDistance = obtenirDistancePointeurs();
+
+                        if (distancePinceeInitiale === 0) {
+                            return;
+                        }
+
+                        zoom =
+                            zoomPinceeInitial *
+                            nouvelleDistance /
+                            distancePinceeInitiale;
+
+                        zoom = Math.max(0.2, Math.min(40, zoom));
+
+                        const centre = obtenirCentrePointeurs();
+                        const rect = carteContainer.getBoundingClientRect();
+
+                        offsetX =
+                            centre.x -
+                            rect.left -
+                            pointPinceeX * zoom;
+
+                        offsetY =
+                            centre.y -
+                            rect.top -
+                            pointPinceeY * zoom;
+
+                        if (animationEnCours) {
+                            return;
+                        }
+
+                        animationEnCours = true;
+
+                        requestAnimationFrame(function() {
+                            mettreAJourCarte();
+                            mettreAJourEtiquettes();
+                            animationEnCours = false;
+                        });
+
+                        return;
+                    }
+
+                    if (pointeurs.size === 1 && enDeplacement) {
+                        offsetX += event.clientX - sourisX;
+                        offsetY += event.clientY - sourisY;
+
+                        sourisX = event.clientX;
+                        sourisY = event.clientY;
+
+                        if (animationEnCours) {
+                            return;
+                        }
+
+                        animationEnCours = true;
+
+                        requestAnimationFrame(function() {
+                            mettreAJourCarte();
+                            mettreAJourEtiquettes();
+                            animationEnCours = false;
+                        });
+                    }
+                });
+
+                function terminerPointeur(event) {
+                    pointeurs.delete(event.pointerId);
+
+                    if (pointeurs.size === 1) {
+                        const pointeur = [...pointeurs.values()][0];
+
+                        enDeplacement = true;
+                        pinceeActive = false;
+
+                        sourisX = pointeur.x;
+                        sourisY = pointeur.y;
+                    }
+
+                    if (pointeurs.size === 0) {
+                        enDeplacement = false;
+                        pinceeActive = false;
+                    }
+                }
+
+                carteContainer.addEventListener(
+                    "pointerup",
+                    terminerPointeur
                 );
 
-                let animationEnCours = false;
-
-                document.addEventListener("mousemove", function(event) {
-                    if (!enDeplacement) return;
-
-                    offsetX += event.clientX - sourisX;
-                    offsetY += event.clientY - sourisY;
-
-                    sourisX = event.clientX;
-                    sourisY = event.clientY;
-
-                    if (animationEnCours) return;
-
-                    animationEnCours = true;
-
-                    requestAnimationFrame(function() {
-                        mettreAJourCarte();
-                        animationEnCours = false;
-                    });
-                });
-
-                document.addEventListener("mouseup", function() {
-                    enDeplacement = false;
-                });
+                carteContainer.addEventListener(
+                    "pointercancel",
+                    terminerPointeur
+                );
 
                 function ajouterVille(ville, mettreAJourInterface = true) {
                     if (villesTrouvees.has(ville.code)) {
@@ -1388,63 +1519,71 @@
                 }
                 ajouterVilleDisponible = ajouterVille;
                 
-                reponse.addEventListener("keydown", function(event) {
-                    if (event.key !== "Enter") return;
+                document.getElementById("zone-saisie").addEventListener(
+                    "submit",
+                    function(event) {
+                        event.preventDefault();
 
-                    const saisie = reponse.value.trim();
+                        const saisie = reponse.value.trim();
 
-                    let villesAEntrer;
+                        let villesAEntrer;
 
-                    if (saisie.includes(",")) {
-                        const parties = saisie.split(",");
+                        if (saisie.includes(",")) {
+                            const parties = saisie.split(",");
 
-                        if (parties.length !== 2) {
-                            villesAEntrer = [];
-                        } else {
-                            const texte = normaliserNom(parties[0].trim());
-                            const nomDepartement = normaliserNom(parties[1].trim());
-
-                            const departement = departementParNom.get(nomDepartement);
-
-                            villesAEntrer = departement
-                                ? villeParNomEtDepartement.get(`${texte}|${departement}`) || []
-                                : [];
-                        }
-                    } else {
-                        const texte = normaliserNom(saisie);
-                        const departement = departementSelect.value;
-
-                        if (departement === "__homonymes__") {
-                            villesAEntrer = villesParNom.get(texte) || [];
-                        } else {
-                            if (departement) {
-                                villesAEntrer =
-                                    villeParNomEtDepartement.get(`${texte}|${departement}`) || [];
+                            if (parties.length !== 2) {
+                                villesAEntrer = [];
                             } else {
-                                const ville = villeParNom.get(texte);
-                                villesAEntrer = ville ? [ville] : [];
+                                const texte = normaliserNom(parties[0].trim());
+                                const nomDepartement = normaliserNom(parties[1].trim());
+
+                                const departement =
+                                    departementParNom.get(nomDepartement);
+
+                                villesAEntrer = departement
+                                    ? villeParNomEtDepartement.get(
+                                        `${texte}|${departement}`
+                                    ) || []
+                                    : [];
+                            }
+                        } else {
+                            const texte = normaliserNom(saisie);
+                            const departement = departementSelect.value;
+
+                            if (departement === "__homonymes__") {
+                                villesAEntrer = villesParNom.get(texte) || [];
+                            } else {
+                                if (departement) {
+                                    villesAEntrer =
+                                        villeParNomEtDepartement.get(
+                                            `${texte}|${departement}`
+                                        ) || [];
+                                } else {
+                                    const ville = villeParNom.get(texte);
+                                    villesAEntrer = ville ? [ville] : [];
+                                }
                             }
                         }
-                    }
 
-                    if (villesAEntrer.length === 0) {
-                        messageErreur.textContent = "Commune inconnue !";
-                        messageErreur.classList.add("visible");
+                        if (villesAEntrer.length === 0) {
+                            messageErreur.textContent = "Commune inconnue !";
+                            messageErreur.classList.add("visible");
 
-                        setTimeout(function() {
-                            messageErreur.classList.remove("visible");
-                        }, 2000);
+                            setTimeout(function() {
+                                messageErreur.classList.remove("visible");
+                            }, 2000);
+
+                            reponse.value = "";
+                            return;
+                        }
+
+                        for (const ville of villesAEntrer) {
+                            ajouterVille(ville);
+                        }
 
                         reponse.value = "";
-                        return;
                     }
-
-                    for (const ville of villesAEntrer) {
-                        ajouterVille(ville);
-                    }
-
-                    reponse.value = "";
-                });
+                );
 
                 document.getElementById("reset-vue").addEventListener("click", function() {
                     zoom = 1;
