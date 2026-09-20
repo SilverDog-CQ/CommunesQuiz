@@ -1412,11 +1412,13 @@
                         if (departement === "__homonymes__") {
                             villesAEntrer = villesParNom.get(texte) || [];
                         } else {
-                            const ville = departement
-                                ? villeParNomEtDepartement.get(`${texte}|${departement}`)
-                                : villeParNom.get(texte);
-
-                            villesAEntrer = ville ? [ville] : [];
+                            if (departement) {
+                                villesAEntrer =
+                                    villeParNomEtDepartement.get(`${texte}|${departement}`) || [];
+                            } else {
+                                const ville = villeParNom.get(texte);
+                                villesAEntrer = ville ? [ville] : [];
+                            }
                         }
                     }
 
