@@ -1,0 +1,1860 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>CommunesQuiz</title>
+    <link rel="icon" href="Logo_CommunesQuiz.png">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            cursor: default;
+        }
+
+        body {
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background-color: #c8dce9;
+            font-family: "Rubik", sans-serif;
+        }
+
+        #carte {
+            transform-origin: 0 0;
+        }
+
+        #carte-container {
+            width: 100%;
+            height: calc(100vh - 80px);
+            overflow: hidden;
+        }
+
+        #carte-container svg {
+            width: 100%;
+            height: 100%;
+            transform-origin: 0 0;
+            overflow: visible;
+        }
+
+        #barre-jeu {
+            width: 100%;
+            height: 60px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid black;
+            background-color: #002654;
+        }
+
+        #zone-reponse {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #reponse {
+            width: 250px;
+            flex-shrink: 0;
+            padding: 10px 15px;
+            font-size: 15px;
+            font-weight: normal;
+            color: #505050;
+            border: 1px solid black;
+            cursor: text;
+            border-radius: 0;
+        }
+
+        #reponse:focus {
+            outline: none;
+        }
+
+        #compteur-container {
+            text-align: center;
+        }
+
+        #compteur-label {
+            font-size: 15px;
+            font-weight: bold;
+            color: white;
+        }
+
+        #compteur {
+            font-size: 20px;
+            font-weight: bold;
+            color: white;
+        }
+
+        #reset-vue,
+        #nouvelle-partie,
+        #import-export {
+            width: 145px;
+            font-size: 13px;
+            font-weight: bold;
+            color: white;
+            border: 2px solid black;
+            border-radius: 999px;
+            padding: 9px 10px;
+            cursor: pointer;
+        }
+
+        #import-export {
+            background-color: #2F649E;
+        }
+
+        #reset-vue {
+            background-color: #2F649E;
+        }
+
+        #nouvelle-partie {
+            background-color: #CE1126;
+        }
+
+        #boutons-partie {
+            display: flex;
+            gap: 5px;
+        }
+
+        label {
+            font-size: 15px;
+            font-weight: normal;
+            color: white;
+        }
+
+        #liste-villes {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            width: 280px;
+            height: calc(100vh - 120px);
+
+            padding: 20px;
+
+            background: white;
+            border: 2px solid black;
+            border-radius: 10px;
+
+            z-index: 10;
+        }
+
+        #liste-departements {
+            position: fixed;
+            top: 80px;
+            left: 20px;
+            width: 280px;
+            height: calc(100vh - 120px);
+
+            padding: 20px;
+
+            background: white;
+            border: 2px solid black;
+            border-radius: 10px;
+
+            z-index: 10;
+        }
+
+        #titre-departements {
+            text-align: center;
+            font-size: 17px;
+            font-weight: bold;
+
+            padding-bottom: 12px;
+            border-bottom: 1px solid #D0D0D0;
+            margin-bottom: 12px;
+
+            margin-left: -20px;
+            margin-right: -20px;
+            padding-left: 10px;
+            padding-right: 10px;
+
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 2;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #conteneur-departements {
+            height: calc(100% - 55px);
+            overflow: auto;
+
+            padding-right: 0;
+            padding-bottom: 5px;
+
+            margin-left: -10px;
+            margin-right: -10px;
+            padding-left: 10px;
+        }
+
+        #liste-departements-trouves {
+            list-style: none;
+
+            margin-left: 0;
+            margin-right: 0;
+            padding-left: 0px;
+            padding-right: 30px;
+
+            width: max-content;
+            min-width: 100%;
+
+            font-size: 13px;
+        }
+
+        #liste-departements-trouves li {
+            white-space: nowrap;
+            margin-bottom: 4px;
+        }
+
+        #titre-liste {
+            text-align: center;
+            font-size: 17px;
+            font-weight: bold;
+
+            padding-bottom: 12px;
+            border-bottom: 1px solid #D0D0D0;
+            margin-bottom: 12px;
+
+            margin-left: -20px;
+            margin-right: -20px;
+            padding-left: 10px;
+            padding-right: 10px;
+
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 2;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        #liste-villes-trouvees {
+            margin-top: 0;
+            margin-left: -10px;
+            margin-right: -10px;
+            padding-left: 55px;
+            padding-right: 30px;
+            width: max-content;
+            min-width: 100%;
+            font-size: 13px;
+        }
+
+        #liste-villes-trouvees li {
+            white-space: nowrap;
+        }
+
+        #liste-villes-trouvees button {
+            display: inline-flex;
+            vertical-align: middle;
+
+            margin-left: 8px;
+
+            width: 18px;
+            height: 18px;
+            padding: 0;
+
+            border: 1px solid #A0A0A0;
+            border-radius: 50%;
+
+            background: white;
+            color: #B0B0B0;
+
+            font-family: "Rubik", sans-serif;
+            font-size: 12px;
+
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        #liste-villes-trouvees button:hover {
+            background: #CCCCCC;
+            color: #808080;
+            border-color: #707070;
+        }
+
+        #conteneur-liste {
+            height: calc(100% - 55px);
+            overflow: auto;
+
+            padding-right: 0;
+            padding-bottom: 5px;
+
+            margin-left: -10px;
+            margin-right: -10px;
+            padding-left: 10px;
+        }
+
+        #boutons-tri {
+            display: flex;
+            gap: 0px;
+        }
+
+        #boutons-tri-departements {
+            display: flex;
+            gap: 0px;
+        }
+
+        #boutons-tri-departements button,
+        #boutons-tri button {
+            width: 40px;
+            height: 30px;
+            padding: 0;
+
+            border: 1px solid #002654;
+            border-radius: 0;
+
+            background: #2F649E;
+            color: white;
+
+            font-size: 11px;
+            font-weight: bold;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            cursor: pointer;
+        }
+
+        #boutons-tri-departements button:first-child,
+        #boutons-tri button:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+
+        #boutons-tri-departements button:last-child,
+        #boutons-tri button:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+
+        #boutons-tri-departements button:hover,
+        #boutons-tri button:hover {
+            background: #0C316B;
+            color: white;
+        }
+        
+        #message-erreur {
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+
+            padding: 8px 15px;
+            background: white;
+            border: 1px solid #707070;
+            border-radius: 6px;
+
+            font-size: 14px;
+            color: #606060;
+
+            opacity: 0;
+            pointer-events: none;
+            z-index: 20;
+
+            transition: opacity 0.3s ease;
+        }
+
+        #message-erreur.visible {
+            opacity: 1;
+        }
+
+        #boutons-tri-departements button span,
+        #boutons-tri button span {
+            line-height: 1;
+            transform: translateY(-1px);
+        }
+
+        #zone-saisie {
+            display: flex;
+        }
+
+        #departement {
+            width: 220px;
+            height: 100%;
+            padding: 10px;
+            border: 1px solid black;
+            border-left: none;
+            font-family: "Rubik", sans-serif;
+            font-size: 15px;
+            cursor: default;
+        }
+
+        #footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 20px;
+
+            display: flex;
+            align-items: center;
+            justify-content: left;
+
+            background-color: #002654;
+            border-top: 1px solid black;
+
+            color: white;
+            font-size: 11px;
+            font-weight: normal;
+
+            padding-left: 5px;
+
+            z-index: 20;
+        }
+
+        #confirmation-suppression,
+        #menu-import-export{
+            position: fixed;
+            inset: 0;
+
+            display: none;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(0, 0, 0, 0.5);
+
+            z-index: 100;
+        }
+
+        #titre-import-export {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 25px;
+        }
+
+        #boutons-import-export button {
+            width: 120px;
+            padding: 10px 15px;
+
+            border: 2px solid black;
+            border-radius: 999px;
+
+            font-family: "Rubik", sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        #importer-partie,
+        #exporter-partie {
+            background: #2F649E;
+            color: white;
+        }
+
+        #chargement {
+            position: fixed;
+            inset: 0;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: rgba(0, 0, 0, 0.5);
+
+            z-index: 100;
+        }
+
+        #boite-chargement {
+            width: 360px;
+            padding: 25px;
+
+            background: white;
+            border: 2px solid black;
+            border-radius: 10px;
+
+            text-align: center;
+        }
+
+        #texte-chargement {
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        #boite-confirmation,
+        #boite-import-export {
+            width: 360px;
+            padding: 25px;
+            background: white;
+            border: 2px solid black;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        #titre-confirmation {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        #texte-confirmation {
+            font-size: 14px;
+            color: #505050;
+            margin-bottom: 25px;
+        }
+
+        #boutons-confirmation,
+        #boutons-import-export {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        #boutons-confirmation button {
+            width: 120px;
+            padding: 10px 15px;
+
+            border: 2px solid black;
+            border-radius: 999px;
+
+            font-family: "Rubik", sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        #annuler-suppression {
+            background: #E0E0E0;
+            color: #505050;
+        }
+
+        #confirmer-suppression {
+            background: #CE1126;
+            color: white;
+        }
+
+        #footer a {
+            color: white;
+            margin-left: 5px;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 700px) {
+
+            #barre-jeu {
+                height: auto;
+                min-height: 60px;
+                padding: 8px 5px;
+                order: 1;
+            }
+
+            #zone-reponse {
+                width: 100%;
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            #compteur-container {
+                order: 1;
+            }
+
+            #zone-saisie {
+                order: 2;
+                width: 100%;
+                justify-content: center;
+            }
+
+            #reponse {
+                width: 55%;
+                min-width: 0;
+            }
+
+            #departement {
+                width: 45%;
+                min-width: 0;
+            }
+
+            #boutons-partie {
+                order: 3;
+            }
+
+            #surlignage-label {
+                order: 4;
+                text-align: center;
+            }
+
+            #carte-container {
+                order: 2;
+                width: 100%;
+                height: 65vh;
+            }
+
+            #liste-departements,
+            #liste-villes {
+                position: static;
+                width: calc(100% - 10px);
+                height: 25vh;
+                margin: 5px;
+                padding: 10px;
+            }
+
+            #reset-vue,
+            #nouvelle-partie,
+            #import-export {
+                width: 110px;
+                font-size: 10px;
+                padding: 7px 5px;
+            }
+
+            #panels {
+                order: 3;
+            }
+
+            #footer {
+                order: 6;
+            }
+
+            #titre-departements,
+            #titre-liste {
+                font-size: 14px;
+                padding-bottom: 8px;
+                margin-bottom: 8px;
+                margin-left: -10px;
+                margin-right: -10px;
+            }
+
+            #liste-departements-trouves,
+            #liste-villes-trouvees {
+                font-size: 11px;
+            }
+
+            #conteneur-departements,
+            #conteneur-liste {
+                height: calc(100% - 45px);
+            }
+
+            #boutons-tri-departements button,
+            #boutons-tri button {
+                width: 32px;
+                height: 26px;
+                font-size: 9px;
+            }
+
+            #footer {
+                font-size: 9px;
+            }
+        }
+        @media (orientation: landscape) and (max-height: 500px) and (pointer: coarse) {
+
+            #barre-jeu {
+                order: 1;
+                height: auto;
+                min-height: 60px;
+                padding: 10px 5px;
+            }
+
+            #zone-reponse {
+                width: 100%;
+                display: grid;
+                grid-template-columns: max-content 1fr max-content;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            #compteur-container {
+                grid-column: 1;
+                white-space: nowrap;
+            }
+
+            #zone-saisie {
+                grid-column: 2;
+                width: auto;
+                justify-content: center;
+            }
+
+            #reset-vue,
+            #nouvelle-partie,
+            #import-export {
+                width: 95px;
+                font-size: 9px;
+                padding: 7px 4px;
+            }
+
+            #boutons-partie {
+                grid-column: 3;
+                flex-wrap: nowrap;
+            }
+
+            #surlignage-label {
+                grid-column: 1 / -1;
+                text-align: center;
+            }
+
+            #carte-container {
+                order: 2;
+                width: 100%;
+                height: 70vh;
+                flex-shrink: 0;
+            }
+
+            #panels {
+                order: 3;
+                width: 100%;
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 5px;
+            }
+
+            #liste-departements,
+            #liste-villes {
+                position: static;
+                width: auto;
+                height: 40vh;
+                margin: 5px;
+                padding: 10px;
+            }
+
+            #titre-departements,
+            #titre-liste {
+                margin-left: -10px;
+                margin-right: -10px;
+            }
+
+            #reponse {
+                width: 160px;
+            }
+
+            #departement {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chargement">
+        <div id="boite-chargement">
+            <div id="texte-chargement">Chargement...</div>
+        </div>
+    </div>
+
+    <div id="barre-jeu">
+        <div id="zone-reponse">
+            <div id="compteur-container">
+                <div id="compteur-label">Communes trouvées :</div>
+                <div id="compteur">0 / 34746</div>
+            </div>
+            <div id="message-erreur"></div>
+            <div id="zone-saisie">
+                <input
+                    type="text"
+                    id="reponse"
+                    placeholder="Entrez une commune !"
+                    autocomplete="off"
+                >
+                <select id="departement">
+                    <option value="">Tous les départements</option>
+                </select>
+            </div>
+            <div id="boutons-partie">
+                <button id="reset-vue">Réinitialiser<br>le zoom</button>
+                <button id="nouvelle-partie">Nouvelle partie</button>
+                <button id="import-export">Importer / Exporter</button>
+            </div>
+            <label id="surlignage-label">
+                <input type="checkbox" id="surlignage-derniere">
+                Surligner la dernière commune entrée
+            </label>
+        </div>
+    </div>
+
+    <div id="panels">
+        <div id="liste-departements">
+            <div id="titre-departements">
+                <span>Départements</span>
+
+                <div id="boutons-tri-departements">
+                    <button id="tri-departements-nom" title="Ordre alphabétique">
+                        <span>A-Z ↕</span>
+                    </button>
+
+                    <button id="tri-departements-nombre" title="Nombre de communes trouvées">
+                        <span>1-9 ↕</span>
+                    </button>
+
+                    <button id="tri-departements-pourcentage" title="Pourcentage de communes trouvées">
+                        <span>% ↕</span>
+                    </button>
+                </div>
+            </div>
+
+            <div id="conteneur-departements">
+                <ul id="liste-departements-trouves"></ul>
+            </div>
+        </div>
+        <div id="liste-villes">
+            <div id="titre-liste">
+                <span>Communes trouvées</span>
+
+                <div id="boutons-tri">
+                    <button id="tri-entree" title="Trier par ordre d'entrée"><span>↕</span></button>
+                    <button id="tri-nom" title="Trier par ordre alphabétique"><span>A-Z ↕</span></button>
+                    <button id="tri-population" title="Trier par population"><span>1-9 ↕</span></button>
+                </div>
+            </div>
+            <div id="conteneur-liste">
+                <ol id="liste-villes-trouvees"></ol>
+            </div>
+        </div>
+    </div>
+
+    <div id="carte-container"></div>
+
+    <div id="confirmation-suppression">
+        <div id="boite-confirmation">
+            <div id="titre-confirmation">Supprimer cette commune ?</div>
+
+            <div id="texte-confirmation"></div>
+
+            <div id="boutons-confirmation">
+                <button id="annuler-suppression">Annuler</button>
+                <button id="confirmer-suppression">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="menu-import-export">
+        <div id="boite-import-export">
+            <div id="titre-import-export">Voulez-vous importer une sauvegarde ou exporter votre partie actuelle ?</div>
+
+            <div id="boutons-import-export">
+                <button id="importer-partie">Importer</button>
+                <button id="exporter-partie">Exporter</button>
+            </div>
+        </div>
+    </div>
+
+    <input
+        type="file"
+        id="fichier-import"
+        accept=".json,application/json"
+        style="display: none;"
+    >
+
+    <script src="https://cdn.jsdelivr.net/npm/proj4@2.9.2/dist/proj4.js"></script>
+    <script>
+        proj4.defs(
+            "EPSG:2154",
+            "+proj=lcc +lat_1=49 +lat_2=44 " +
+            "+lat_0=46.5 +lon_0=3 " +
+            "+x_0=700000 +y_0=6600000 " +
+            "+ellps=GRS80 +units=m +no_defs"
+        );
+        
+        function lambertVersSVG(X, Y) {
+            const x = 0.00131131938 * X
+                    + 0.0000000665398932 * Y
+                    - 129.822911;
+
+            const y = -0.0000000390412342 * X
+                    - 0.00131152886 * Y
+                    + 9325.71749;
+
+            return {
+                x: x * 3.125,
+                y: y * 3.125
+            };
+        }
+        
+        function normaliserNom(nom) {
+            return nom
+                .toLowerCase()
+                .replace(/œ/g, "oe")
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/saint/g, "st")
+                .replace(/['’]/g, "")
+                .replace(/-/g, " ");
+        }
+
+        let villesAffichees = [];
+        let villeEnSuppression = null;
+        let actionConfirmation = null;
+        let triActuel = "entree";
+        let ordreTri = 1;
+        let villes = [];
+        let cerclesCommunes = [];
+        let triActuelDepartements = "nom";
+        let ordreTriDepartements = 1;
+
+        const villesTrouvees = new Set();
+        const carteContainer = document.getElementById("carte-container");
+        const reponse = document.getElementById("reponse");
+        const compteur = document.getElementById("compteur");
+        function sauvegarderPartie() {
+            localStorage.setItem(
+                "communesQuizPartie",
+                JSON.stringify([...villesTrouvees])
+            );
+        }
+        const villeParNom = new Map();
+        const villesParNom = new Map();
+        const villeParCode = new Map();
+        const messageErreur = document.getElementById("message-erreur");
+        const listeVillesTrouvees =
+            document.getElementById("liste-villes-trouvees");
+        const departementSelect = document.getElementById("departement");
+        const departementParNom = new Map();
+        const villeParNomEtDepartement = new Map();
+        const statistiquesDepartements = new Map();
+        let ajouterVilleDisponible = null;
+        let donneesChargees = false;
+        let carteChargee = false;
+
+        function verifierChargement() {
+            if (donneesChargees && carteChargee) {
+                document.getElementById("chargement").style.display = "none";
+            }
+        }
+        function restaurerPartie() {
+            const sauvegarde = localStorage.getItem("communesQuizPartie");
+
+            if (!sauvegarde) {
+                return;
+            }
+
+            if (!ajouterVilleDisponible || villeParCode.size === 0) {
+                return;
+            }
+
+            const codes = JSON.parse(sauvegarde);
+
+            for (const code of codes) {
+                const ville = villeParCode.get(String(code));
+
+                if (ville) {
+                    ajouterVilleDisponible(ville, false);
+                }
+            }
+
+            afficherListeVilles();
+            afficherListeDepartements();
+
+            compteur.textContent =
+                `${villesTrouvees.size} / ${villes.length}`;
+        }
+
+        fetch("./villes.json")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Impossible de charger les données.");
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                villes = data;
+                compteur.textContent = `0 / ${villes.length}`;
+
+                const departements = new Set();
+
+                for (let i = 0; i < villes.length; i++) {
+                    const ville = villes[i];
+                    if (!statistiquesDepartements.has(ville.departement)) {
+                        statistiquesDepartements.set(ville.departement, {
+                            total: 0,
+                            trouvees: 0
+                        });
+                    }
+
+                    statistiquesDepartements.get(ville.departement).total++;
+                    ville.population = Number(ville.population);
+                    villeParCode.set(String(ville.code), ville);
+                    ville.longitude = Number(ville.longitude);
+                    ville.latitude = Number(ville.latitude);
+                    ville.texte = `${ville.nom}, ${ville.departement} (${ville.population.toLocaleString("fr-FR")})`;
+                    ville.nomTri = normaliserNom(ville.nom);
+                    ville.rayon = 3 + 37 * Math.sqrt(ville.population / 2103778);
+
+                    departements.add(ville.departement);
+
+                    const nom = ville.nomTri;
+
+                    if (!villeParNom.has(nom)) {
+                        villeParNom.set(nom, ville);
+                    }
+
+                    if (!villesParNom.has(nom)) {
+                        villesParNom.set(nom, []);
+                    }
+
+                    villesParNom.get(nom).push(ville);
+
+                    const cle = `${nom}|${ville.departement}`;
+
+                    if (!villeParNomEtDepartement.has(cle)) {
+                        villeParNomEtDepartement.set(cle, []);
+                    }
+
+                    villeParNomEtDepartement.get(cle).push(ville);
+                }
+                const departementsTries = [...departements].sort((a, b) =>
+                    a.localeCompare(b, "fr")
+                );
+
+                const optionHomonymes = document.createElement("option");
+
+                optionHomonymes.value = "__homonymes__";
+                optionHomonymes.textContent = "Homonymes";
+
+                departementSelect.appendChild(optionHomonymes);
+
+                for (const departement of departementsTries) {
+                    departementParNom.set(
+                        normaliserNom(departement),
+                        departement
+                    );
+                    const option = document.createElement("option");
+
+                    option.value = departement;
+                    option.textContent = departement;
+
+                    departementSelect.appendChild(option);
+                }
+                afficherListeDepartements();
+
+                donneesChargees = true;
+                verifierChargement();
+                })
+                .catch(function() {
+                    document.getElementById("texte-chargement").textContent =
+                        "Impossible de charger les données.";
+                });
+        
+        fetch("./Carte_de_France.svg")
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Impossible de charger la carte.");
+                }
+                return response.text();
+            })
+        .then(svg => {
+            carteContainer.innerHTML = svg;
+
+            let derniereCommuneCercle = null;
+            let groupeEtiquetteVisible = null;
+
+            const checkboxSurlignage =
+                document.getElementById("surlignage-derniere");
+
+            checkboxSurlignage.addEventListener("change", function() {
+                if (!derniereCommuneCercle) return;
+
+                if (this.checked) {
+                    derniereCommuneCercle.setAttribute("fill", "#FFD700");
+                } else {
+                    derniereCommuneCercle.setAttribute("fill", "#D90D16");
+                }
+            });
+
+            const carte = carteContainer.querySelector("svg");
+                
+                const groupeEtiquettes = document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "g"
+                );
+
+                groupeEtiquettes.setAttribute("id", "etiquettes");
+                carte.appendChild(groupeEtiquettes);
+
+                const groupeEtiquetteUnique = document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "g"
+                );
+
+                const fondEtiquetteUnique = document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "rect"
+                );
+
+                const etiquetteUnique = document.createElementNS(
+                    "http://www.w3.org/2000/svg",
+                    "text"
+                );
+
+                groupeEtiquetteUnique.classList.add("groupe-etiquette");
+
+                etiquetteUnique.setAttribute("font-family", "Rubik, sans-serif");
+                etiquetteUnique.setAttribute("font-size", "100");
+                etiquetteUnique.setAttribute("fill", "black");
+                etiquetteUnique.setAttribute("dominant-baseline", "middle");
+
+                fondEtiquetteUnique.setAttribute("rx", "25");
+                fondEtiquetteUnique.setAttribute("fill", "white");
+                fondEtiquetteUnique.setAttribute("stroke", "black");
+                fondEtiquetteUnique.setAttribute("stroke-width", "2");
+
+                groupeEtiquetteUnique.appendChild(fondEtiquetteUnique);
+                groupeEtiquetteUnique.appendChild(etiquetteUnique);
+
+                groupeEtiquetteUnique.style.display = "none";
+                groupeEtiquetteUnique.style.pointerEvents = "none";
+
+                groupeEtiquettes.appendChild(groupeEtiquetteUnique);
+
+                let zoom = 1;
+                let offsetX = 0;
+                let offsetY = 0;
+
+                let sourisX = 0;
+                let sourisY = 0;
+                let enDeplacement = false;
+
+                function mettreAJourCarte() {
+                    carte.style.transform =
+                        `translate(${offsetX}px, ${offsetY}px) scale(${zoom})`;
+                }
+
+                function mettreAJourEtiquettes() {
+                    if (!groupeEtiquetteVisible) {
+                        return;
+                    }
+
+                    const x = groupeEtiquetteVisible.positionX;
+                    const y = groupeEtiquetteVisible.positionY;
+
+                    groupeEtiquetteVisible.setAttribute(
+                        "transform",
+                        `translate(${x} ${y}) scale(${1 / zoom}) translate(${-x} ${-y})`
+                    );
+                }
+
+                carte.addEventListener("mouseover", function(event) {
+                    const cercle = event.target;
+
+                    if (!cercle.classList.contains("cercle-commune")) {
+                        return;
+                    }
+
+                    const ville = cercle.ville;
+                    const position = ville.position;
+                    const rayon = ville.rayon;
+
+                    etiquetteUnique.textContent = ville.texte;
+
+                    const decalageX = 100;
+
+                    etiquetteUnique.setAttribute(
+                        "x",
+                        position.x + rayon + 8 + decalageX
+                    );
+
+                    etiquetteUnique.setAttribute(
+                        "y",
+                        position.y
+                    );
+
+                    groupeEtiquetteUnique.style.display = "";
+
+                    const boiteTexte = etiquetteUnique.getBBox();
+
+                    const margeX = 30;
+                    const margeY = 20;
+
+                    fondEtiquetteUnique.setAttribute(
+                        "x",
+                        boiteTexte.x - margeX
+                    );
+
+                    fondEtiquetteUnique.setAttribute(
+                        "y",
+                        boiteTexte.y - margeY
+                    );
+
+                    fondEtiquetteUnique.setAttribute(
+                        "width",
+                        boiteTexte.width + margeX * 2
+                    );
+
+                    fondEtiquetteUnique.setAttribute(
+                        "height",
+                        boiteTexte.height + margeY * 2
+                    );
+
+                    groupeEtiquetteUnique.positionX = position.x;
+                    groupeEtiquetteUnique.positionY = position.y;
+
+                    groupeEtiquetteUnique.setAttribute(
+                        "transform",
+                        `translate(${position.x} ${position.y}) scale(${1 / zoom}) translate(${-position.x} ${-position.y})`
+                    );
+
+                    groupeEtiquetteVisible = groupeEtiquetteUnique;
+
+                    cercle.style.setProperty(
+                        "fill-opacity",
+                        "1",
+                        "important"
+                    );
+                });
+
+                carte.addEventListener("mouseout", function(event) {
+                    const cercle = event.target;
+
+                    if (!cercle.classList.contains("cercle-commune")) {
+                        return;
+                    }
+
+                    groupeEtiquetteUnique.style.display = "none";
+                    groupeEtiquetteVisible = null;
+
+                    cercle.style.setProperty(
+                        "fill-opacity",
+                        "0.7",
+                        "important"
+                    );
+                });
+
+                carteContainer.addEventListener(
+                    "wheel",
+                    function(event) {
+                        event.preventDefault();
+
+                        const rect = carteContainer.getBoundingClientRect();
+
+                        const x =
+                            (event.clientX - rect.left - offsetX) / zoom;
+
+                        const y =
+                            (event.clientY - rect.top - offsetY) / zoom;
+
+                        const ancienZoom = zoom;
+
+                        if (event.deltaY < 0) {
+                            zoom *= 1.2;
+                        } else {
+                            zoom /= 1.2;
+                        }
+
+                        zoom = Math.max(0.2, Math.min(40, zoom));
+
+                        offsetX += x * (ancienZoom - zoom);
+                        offsetY += y * (ancienZoom - zoom);
+
+                        mettreAJourCarte();
+                        mettreAJourEtiquettes();
+                    },
+                    { passive: false }
+                );
+
+                carteContainer.addEventListener(
+                    "mousedown",
+                    function(event) {
+                        enDeplacement = true;
+                        sourisX = event.clientX;
+                        sourisY = event.clientY;
+                    }
+                );
+
+                let animationEnCours = false;
+
+                document.addEventListener("mousemove", function(event) {
+                    if (!enDeplacement) return;
+
+                    offsetX += event.clientX - sourisX;
+                    offsetY += event.clientY - sourisY;
+
+                    sourisX = event.clientX;
+                    sourisY = event.clientY;
+
+                    if (animationEnCours) return;
+
+                    animationEnCours = true;
+
+                    requestAnimationFrame(function() {
+                        mettreAJourCarte();
+                        animationEnCours = false;
+                    });
+                });
+
+                document.addEventListener("mouseup", function() {
+                    enDeplacement = false;
+                });
+
+                function ajouterVille(ville, mettreAJourInterface = true) {
+                    if (villesTrouvees.has(ville.code)) {
+                        return;
+                    }
+
+                    let position = ville.position;
+
+                    if (!position) {
+                        const lambert = proj4(
+                            "EPSG:4326",
+                            "EPSG:2154",
+                            [
+                                ville.longitude,
+                                ville.latitude
+                            ]
+                        );
+
+                        position = lambertVersSVG(
+                            lambert[0],
+                            lambert[1]
+                        );
+
+                        ville.position = position;
+                    }
+                    
+                    const cercle = document.createElementNS(
+                        "http://www.w3.org/2000/svg",
+                        "circle"
+                    );
+
+                    cercle.setAttribute("cx", position.x);
+                    cercle.setAttribute("cy", position.y);
+                    const rayon = ville.rayon;
+                    cercle.setAttribute("r", rayon);
+                    cercle.setAttribute("fill", "#D90D16");
+                    cercle.setAttribute("fill-opacity", "0.7");
+                    cercle.setAttribute("stroke", "black");
+                    cercle.setAttribute("stroke-width", "1");
+                    cercle.classList.add("cercle-commune");
+                    cercle.ville = ville;
+                    cercle.population = ville.population;
+
+                    let debut = 0;
+                    let fin = cerclesCommunes.length;
+
+                    while (debut < fin) {
+                        const milieu = Math.floor((debut + fin) / 2);
+
+                        if (ville.population <= cerclesCommunes[milieu].population) {
+                            debut = milieu + 1;
+                        } else {
+                            fin = milieu;
+                        }
+                    }
+
+                    const index = debut;
+
+                    if (index < cerclesCommunes.length) {
+                        carte.insertBefore(cercle, cerclesCommunes[index]);
+                    } else {
+                        carte.insertBefore(cercle, groupeEtiquettes);
+                    }
+
+                    cerclesCommunes.splice(index, 0, cercle);
+
+                    if (derniereCommuneCercle) {
+                        derniereCommuneCercle.setAttribute("fill", "#D90D16");
+                    }
+
+                    derniereCommuneCercle = cercle;
+
+                    if (checkboxSurlignage.checked) {
+                        cercle.setAttribute("fill", "#FFD700");
+                    }
+
+                    villesTrouvees.add(ville.code);
+                    statistiquesDepartements.get(ville.departement).trouvees++;
+                    villesAffichees.push(ville);
+
+                    ville.cercle = cercle;
+
+                    if (mettreAJourInterface) {
+                        sauvegarderPartie();
+
+                        afficherListeVilles();
+                        afficherListeDepartements();
+
+                        compteur.textContent =
+                            `${villesTrouvees.size} / ${villes.length}`;
+                    }
+                }
+                ajouterVilleDisponible = ajouterVille;
+
+                restaurerPartie();
+                
+                reponse.addEventListener("keydown", function(event) {
+                    if (event.key !== "Enter") return;
+
+                    const saisie = reponse.value.trim();
+
+                    let villesAEntrer;
+
+                    if (saisie.includes(",")) {
+                        const parties = saisie.split(",");
+
+                        if (parties.length !== 2) {
+                            villesAEntrer = [];
+                        } else {
+                            const texte = normaliserNom(parties[0].trim());
+                            const nomDepartement = normaliserNom(parties[1].trim());
+
+                            const departement = departementParNom.get(nomDepartement);
+
+                            villesAEntrer = departement
+                                ? villeParNomEtDepartement.get(`${texte}|${departement}`) || []
+                                : [];
+                        }
+                    } else {
+                        const texte = normaliserNom(saisie);
+                        const departement = departementSelect.value;
+
+                        if (departement === "__homonymes__") {
+                            villesAEntrer = villesParNom.get(texte) || [];
+                        } else {
+                            const ville = departement
+                                ? villeParNomEtDepartement.get(`${texte}|${departement}`)
+                                : villeParNom.get(texte);
+
+                            villesAEntrer = ville ? [ville] : [];
+                        }
+                    }
+
+                    if (villesAEntrer.length === 0) {
+                        messageErreur.textContent = "Commune inconnue !";
+                        messageErreur.classList.add("visible");
+
+                        setTimeout(function() {
+                            messageErreur.classList.remove("visible");
+                        }, 2000);
+
+                        reponse.value = "";
+                        return;
+                    }
+
+                    for (const ville of villesAEntrer) {
+                        ajouterVille(ville);
+                    }
+
+                    reponse.value = "";
+                });
+
+                document.getElementById("reset-vue").addEventListener("click", function() {
+                    zoom = 1;
+                    offsetX = 0;
+                    offsetY = 0;
+
+                    mettreAJourCarte();
+                    mettreAJourEtiquettes();
+                });
+                document.getElementById("nouvelle-partie").addEventListener("click", function() {
+                    actionConfirmation = "nouvelle-partie";
+                    villeEnSuppression = null;
+
+                    document.getElementById("titre-confirmation").textContent =
+                        "Nouvelle partie ?";
+
+                    document.getElementById("texte-confirmation").innerHTML =
+                        "Voulez-vous vraiment effacer<br/>toutes les communes trouvées ?";
+
+                    document.getElementById("confirmer-suppression").textContent =
+                        "Oui";
+
+                    document.getElementById("annuler-suppression").textContent =
+                        "Non";
+
+                    document.getElementById("confirmation-suppression").style.display =
+                        "flex";
+                });
+                carteChargee = true;
+                verifierChargement();
+            })
+            .catch(function() {
+                document.getElementById("texte-chargement").textContent =
+                    "Impossible de charger la carte.";
+            });
+            function afficherListeVilles() {
+                const liste = listeVillesTrouvees;
+                const conteneur = document.getElementById("conteneur-liste");
+                const positionDefilement = conteneur.scrollTop;
+
+                liste.innerHTML = "";
+
+                const fragment = document.createDocumentFragment();
+
+                let villesTriees = villesAffichees;
+
+                if (triActuel === "nom") {
+                    villesTriees = [...villesAffichees].sort((a, b) =>
+                        a.nomTri.localeCompare(b.nomTri, "fr")
+                    );
+                } else if (triActuel === "population") {
+                    villesTriees = [...villesAffichees].sort((a, b) =>
+                        b.population - a.population
+                    );
+                }
+
+                if (ordreTri === -1) {
+                    villesTriees = [...villesTriees].reverse();
+                }
+
+                liste.reversed = triActuel === "entree" && ordreTri === -1;
+
+                villesTriees.forEach(ville => {
+                    const elementVille = document.createElement("li");
+
+                    const texteVille = document.createElement("span");
+                    texteVille.textContent =
+                        ville.texte;
+
+                    const boutonSupprimer = document.createElement("button");
+                    boutonSupprimer.textContent = "×";
+                    boutonSupprimer.addEventListener("click", function() {
+                        villeEnSuppression = ville;
+                        actionConfirmation = "suppression-ville";
+                        document.getElementById("titre-confirmation").textContent =
+                            "Supprimer cette commune ?";
+
+                        document.getElementById("annuler-suppression").textContent =
+                            "Annuler";
+
+                        document.getElementById("texte-confirmation").innerHTML =
+                            `Voulez-vous vraiment supprimer<br/>${ville.nom}, ${ville.departement} (${ville.population}) ?`;
+
+                        document.getElementById("confirmation-suppression").style.display =
+                            "flex";
+                    });
+
+                    elementVille.appendChild(texteVille);
+                    elementVille.appendChild(boutonSupprimer);
+
+                    fragment.appendChild(elementVille);
+                });
+                liste.appendChild(fragment);
+
+                conteneur.scrollTop = positionDefilement;
+            }
+            function afficherListeDepartements() {
+                const liste = document.getElementById("liste-departements-trouves");
+
+                liste.innerHTML = "";
+
+                const fragment = document.createDocumentFragment();
+
+                let departements = [...statistiquesDepartements.keys()];
+
+                if (triActuelDepartements === "nom") {
+                    departements.sort((a, b) => {
+                        const comparaison = a.localeCompare(b, "fr");
+
+                        return ordreTriDepartements === 1
+                            ? comparaison
+                            : -comparaison;
+                    });
+                } else if (triActuelDepartements === "nombre") {
+                    departements.sort((a, b) => {
+                        const comparaison =
+                            statistiquesDepartements.get(b).trouvees -
+                            statistiquesDepartements.get(a).trouvees;
+
+                        if (comparaison !== 0) {
+                            return ordreTriDepartements === 1
+                                ? comparaison
+                                : -comparaison;
+                        }
+
+                        return a.localeCompare(b, "fr");
+                    });
+                } else if (triActuelDepartements === "pourcentage") {
+                    departements.sort((a, b) => {
+                        const statistiquesA = statistiquesDepartements.get(a);
+                        const statistiquesB = statistiquesDepartements.get(b);
+
+                        const pourcentageA =
+                            statistiquesA.trouvees / statistiquesA.total;
+
+                        const pourcentageB =
+                            statistiquesB.trouvees / statistiquesB.total;
+
+                        const comparaison = pourcentageB - pourcentageA;
+
+                        if (comparaison !== 0) {
+                            return ordreTriDepartements === 1
+                                ? comparaison
+                                : -comparaison;
+                        }
+
+                        return a.localeCompare(b, "fr");
+                    });
+                }
+
+                for (const departement of departements) {
+                    const statistiques = statistiquesDepartements.get(departement);
+
+                    const pourcentage =
+                        statistiques.trouvees / statistiques.total * 100;
+
+                    const element = document.createElement("li");
+
+                    element.textContent =
+                        `${departement} : ${statistiques.trouvees}/${statistiques.total} (${pourcentage.toFixed(2).replace(".", ",")} %)`;
+
+                    fragment.appendChild(element);
+                }
+
+                liste.appendChild(fragment);
+            }
+            document.getElementById("tri-entree").addEventListener("click", function() {
+                if (triActuel === "entree") {
+                    ordreTri *= -1;
+                } else {
+                    triActuel = "entree";
+                    ordreTri = 1;
+                }
+
+                afficherListeVilles();
+            });
+
+            document.getElementById("tri-nom").addEventListener("click", function() {
+                if (triActuel === "nom") {
+                    ordreTri *= -1;
+                } else {
+                    triActuel = "nom";
+                    ordreTri = 1;
+                }
+
+                afficherListeVilles();
+            });
+
+            document.getElementById("tri-population").addEventListener("click", function() {
+                if (triActuel === "population") {
+                    ordreTri *= -1;
+                } else {
+                    triActuel = "population";
+                    ordreTri = 1;
+                }
+
+                afficherListeVilles();
+            });
+            document.getElementById("tri-departements-nom").addEventListener("click", function() {
+                if (triActuelDepartements === "nom") {
+                    ordreTriDepartements *= -1;
+                } else {
+                    triActuelDepartements = "nom";
+                    ordreTriDepartements = 1;
+                }
+
+                afficherListeDepartements();
+            });
+
+            document.getElementById("tri-departements-nombre").addEventListener("click", function() {
+                if (triActuelDepartements === "nombre") {
+                    ordreTriDepartements *= -1;
+                } else {
+                    triActuelDepartements = "nombre";
+                    ordreTriDepartements = 1;
+                }
+
+                afficherListeDepartements();
+            });
+
+            document.getElementById("tri-departements-pourcentage").addEventListener("click", function() {
+                if (triActuelDepartements === "pourcentage") {
+                    ordreTriDepartements *= -1;
+                } else {
+                    triActuelDepartements = "pourcentage";
+                    ordreTriDepartements = 1;
+                }
+
+                afficherListeDepartements();
+            });
+            document.getElementById("annuler-suppression").addEventListener(
+                "click",
+                function() {
+                    villeEnSuppression = null;
+
+                    document.getElementById("confirmation-suppression").style.display =
+                        "none";
+                }
+            );
+
+            document.getElementById("confirmer-suppression").addEventListener(
+                "click",
+                function() {
+                    if (actionConfirmation === "nouvelle-partie") {
+                        localStorage.removeItem("communesQuizPartie");
+                        location.reload();
+                        return;
+                    }
+
+                    if (actionConfirmation !== "suppression-ville" || !villeEnSuppression) {
+                        return;
+                    }
+
+                    const ville = villeEnSuppression;
+                    villesTrouvees.delete(ville.code);
+                    statistiquesDepartements.get(ville.departement).trouvees--;
+
+                    const index = villesAffichees.indexOf(ville);
+
+                    if (index !== -1) {
+                        villesAffichees.splice(index, 1);
+                    }
+
+                    ville.cercle.remove();
+
+                    const indexCercle = cerclesCommunes.indexOf(ville.cercle);
+
+                    if (indexCercle !== -1) {
+                        cerclesCommunes.splice(indexCercle, 1);
+                    }
+
+                    sauvegarderPartie();
+
+                    afficherListeVilles();
+                    afficherListeDepartements();
+
+                    compteur.textContent =
+                        `${villesTrouvees.size} / ${villes.length}`;
+
+                    villeEnSuppression = null;
+
+                    document.getElementById("confirmation-suppression").style.display =
+                        "none";
+                }
+            );
+            document.addEventListener("keydown", function(event) {
+                if (event.key !== "Enter") return;
+
+                const confirmation =
+                    document.getElementById("confirmation-suppression");
+
+                if (confirmation.style.display !== "flex") {
+                    return;
+                }
+
+                document.getElementById("confirmer-suppression").click();
+            });
+            document.getElementById("import-export").addEventListener(
+                "click",
+                function() {
+                    document.getElementById("menu-import-export").style.display =
+                        "flex";
+                }
+            );
+
+            document.getElementById("menu-import-export").addEventListener(
+                "click",
+                function(event) {
+                    if (event.target === this) {
+                        this.style.display = "none";
+                    }
+                }
+            );
+
+            document.getElementById("exporter-partie").addEventListener(
+                "click",
+                function() {
+                    const sauvegarde =
+                        localStorage.getItem("communesQuizPartie") || "[]";
+
+                    const fichier = new Blob(
+                        [JSON.stringify(JSON.parse(sauvegarde), null, 2)],
+                        { type: "application/json" }
+                    );
+
+                    const url = URL.createObjectURL(fichier);
+                    const lien = document.createElement("a");
+
+                    lien.href = url;
+                    lien.download = "CommunesQuiz_partie.json";
+                    lien.click();
+
+                    URL.revokeObjectURL(url);
+
+                    document.getElementById("menu-import-export").style.display =
+                        "none";
+                }
+            );
+
+            document.getElementById("importer-partie").addEventListener(
+                "click",
+                function() {
+                    document.getElementById("menu-import-export").style.display =
+                        "none";
+
+                    document.getElementById("fichier-import").click();
+                }
+            );
+
+            document.getElementById("fichier-import").addEventListener(
+                "change",
+                function() {
+                    const fichier = this.files[0];
+
+                    if (!fichier) {
+                        return;
+                    }
+
+                    const lecteur = new FileReader();
+
+                    lecteur.onload = function() {
+                        try {
+                            const donnees = JSON.parse(lecteur.result);
+
+                            if (!Array.isArray(donnees)) {
+                                throw new Error();
+                            }
+
+                            const codes = [
+                                ...new Set(donnees.map(code => String(code)))
+                            ];
+
+                            for (const code of codes) {
+                                if (!villeParCode.has(code)) {
+                                    throw new Error();
+                                }
+                            }
+
+                            localStorage.setItem(
+                                "communesQuizPartie",
+                                JSON.stringify(codes)
+                            );
+
+                            location.reload();
+
+                        } catch {
+                            messageErreur.textContent =
+                                "Fichier de partie invalide !";
+
+                            messageErreur.classList.add("visible");
+
+                            setTimeout(function() {
+                                messageErreur.classList.remove("visible");
+                            }, 2000);
+                        }
+                    };
+
+                    lecteur.readAsText(fichier);
+
+                    this.value = "";
+                }
+            );
+            </script>
+    <footer id="footer">
+        <span>
+            Site développé avec l'aide de ChatGPT (OpenAI) - Données de population de 2023 -
+        </span>
+
+        <a href="https://www.openstreetmap.org/copyright">
+            © OpenStreetMap contributors
+        </a>
+
+        <span> - </span>
+
+        <a href="mentions-legales.html">
+            Mentions légales
+        </a>
+    </footer>
+</body>
+</html>
