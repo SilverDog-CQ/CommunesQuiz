@@ -60,7 +60,7 @@
         }
 
         #reponse {
-            width: 250px;
+            width: 190px;
             flex-shrink: 0;
             padding: 10px 15px;
             font-size: 15px;
@@ -75,18 +75,27 @@
             outline: none;
         }
 
-        #compteur-container {
+        #compteurs {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        #compteur-container,
+        #population-container {
             text-align: center;
         }
 
-        #compteur-label {
-            font-size: 15px;
+        #compteur-label,
+        #population-label {
+            font-size: 13px;
             font-weight: bold;
             color: white;
         }
 
-        #compteur {
-            font-size: 20px;
+        #compteur,
+        #population {
+            font-size: 17px;
             font-weight: bold;
             color: white;
         }
@@ -94,7 +103,7 @@
         #reset-vue,
         #nouvelle-partie,
         #import-export {
-            width: 145px;
+            width: 135px;
             font-size: 13px;
             font-weight: bold;
             color: white;
@@ -383,7 +392,7 @@
         }
 
         #departement {
-            width: 220px;
+            width: 190px;
             height: 100%;
             padding: 10px;
             border: 1px solid black;
@@ -561,7 +570,8 @@
                 gap: 8px;
             }
 
-            #compteur-container {
+            #compteur-container,
+            #population-container {
                 order: 1;
             }
 
@@ -669,9 +679,8 @@
                 gap: 8px;
             }
 
-            #compteur-container {
+            #compteurs {
                 grid-column: 1;
-                white-space: nowrap;
             }
 
             #zone-saisie {
@@ -748,10 +757,18 @@
 
     <div id="barre-jeu">
         <div id="zone-reponse">
-            <div id="compteur-container">
-                <div id="compteur-label">Communes trouvées :</div>
-                <div id="compteur">0 / 34746</div>
+            <div id="compteurs">
+                <div id="compteur-container">
+                    <div id="compteur-label">Communes trouvées :</div>
+                    <div id="compteur">0 / 34746</div>
+                </div>
+
+                <div id="population-container">
+                    <div id="population-label">Population trouvée :</div>
+                    <div id="population">0 / 0</div>
+                </div>
             </div>
+
             <div id="message-erreur"></div>
             <form id="zone-saisie">
                 <input
@@ -884,11 +901,20 @@
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/saint/g, "st")
                 .replace(/['’]/g, "")
+                .replace(/[()]/g, "")
                 .replace(/-/g, " ");
         }
 
+        const saisiesPersonnalisees = new Map([
+            ["LKxKm", [
+                "Château-Chinon"
+            ]]
+        ]);
+
         let villesAffichees = [];
         let villeEnSuppression = null;
+        let populationTrouvee = 0;
+        let populationTotale = 0;
         let actionConfirmation = null;
         let triActuel = "entree";
         let ordreTri = 1;
@@ -901,6 +927,7 @@
         const carteContainer = document.getElementById("carte-container");
         const reponse = document.getElementById("reponse");
         const compteur = document.getElementById("compteur");
+        const population = document.getElementById("population");
         function sauvegarderPartie() {
             localStorage.setItem(
                 "communesQuizPartie",
@@ -910,6 +937,7 @@
         const villeParNom = new Map();
         const villesParNom = new Map();
         const villeParCode = new Map();
+        const villeParSaisiePersonnalisee = new Map();
         const messageErreur = document.getElementById("message-erreur");
         const listeVillesTrouvees =
             document.getElementById("liste-villes-trouvees");
@@ -959,6 +987,9 @@
 
             compteur.textContent =
                 `${villesTrouvees.size} / ${villes.length}`;
+                
+            population.textContent =
+                `${populationTrouvee.toLocaleString("fr-FR")} / ${populationTotale.toLocaleString("fr-FR")}`;
         }
 
         fetch("./villes.json")
@@ -980,12 +1011,16 @@
                     if (!statistiquesDepartements.has(ville.departement)) {
                         statistiquesDepartements.set(ville.departement, {
                             total: 0,
-                            trouvees: 0
+                            trouvees: 0,
+                            populationTotale: 0,
+                            populationTrouvee: 0
                         });
                     }
 
                     statistiquesDepartements.get(ville.departement).total++;
                     ville.population = Number(ville.population);
+                    statistiquesDepartements.get(ville.departement).populationTotale += ville.population;
+                    populationTotale += ville.population;
                     villeParCode.set(String(ville.code), ville);
                     ville.longitude = Number(ville.longitude);
                     ville.latitude = Number(ville.latitude);
@@ -1015,6 +1050,21 @@
 
                     villeParNomEtDepartement.get(cle).push(ville);
                 }
+
+                for (const [code, saisies] of saisiesPersonnalisees) {
+                    const ville = villeParCode.get(String(code));
+
+                    if (!ville) {
+                        continue;
+                    }
+
+                    for (const saisie of saisies) {
+                        villeParSaisiePersonnalisee.set(
+                            normaliserNom(saisie),
+                            ville
+                        );
+                    }
+                }
                 const departementsTries = [...departements].sort((a, b) =>
                     a.localeCompare(b, "fr")
                 );
@@ -1038,10 +1088,15 @@
 
                     departementSelect.appendChild(option);
                 }
+
                 afficherListeDepartements();
+
+                population.textContent =
+                    `0 / ${populationTotale.toLocaleString("fr-FR")}`;
 
                 donneesChargees = true;
                 verifierChargement();
+
                 })
                 .catch(function() {
                     document.getElementById("texte-chargement").textContent =
@@ -1504,7 +1559,9 @@
 
                     villesTrouvees.add(ville.code);
                     statistiquesDepartements.get(ville.departement).trouvees++;
+                    statistiquesDepartements.get(ville.departement).populationTrouvee += ville.population;
                     villesAffichees.push(ville);
+                    populationTrouvee += ville.population;
 
                     ville.cercle = cercle;
 
@@ -1516,6 +1573,9 @@
 
                         compteur.textContent =
                             `${villesTrouvees.size} / ${villes.length}`;
+
+                        population.textContent =
+                            `${populationTrouvee.toLocaleString("fr-FR")} / ${populationTotale.toLocaleString("fr-FR")}`;
                     }
                 }
                 ajouterVilleDisponible = ajouterVille;
@@ -1551,17 +1611,33 @@
                                 const departement =
                                     departementParNom.get(nomDepartement);
 
-                                villesAEntrer = departement
-                                    ? villeParNomEtDepartement.get(
-                                        `${texte}|${departement}`
-                                    ) || []
-                                    : [];
+                                const villePersonnalisee =
+                                    villeParSaisiePersonnalisee.get(texte);
+
+                                if (
+                                    villePersonnalisee &&
+                                    departement &&
+                                    villePersonnalisee.departement === departement
+                                ) {
+                                    villesAEntrer = [villePersonnalisee];
+                                } else {
+                                    villesAEntrer = departement
+                                        ? villeParNomEtDepartement.get(
+                                            `${texte}|${departement}`
+                                        ) || []
+                                        : [];
+                                }
                             }
                         } else {
                             const texte = normaliserNom(saisie);
                             const departement = departementSelect.value;
 
-                            if (departement === "__homonymes__") {
+                            const villePersonnalisee =
+                                villeParSaisiePersonnalisee.get(texte);
+
+                            if (villePersonnalisee) {
+                                villesAEntrer = [villePersonnalisee];
+                            } else if (departement === "__homonymes__") {
                                 villesAEntrer = villesParNom.get(texte) || [];
                             } else {
                                 if (departement) {
@@ -1748,13 +1824,16 @@
                 for (const departement of departements) {
                     const statistiques = statistiquesDepartements.get(departement);
 
-                    const pourcentage =
-                        statistiques.trouvees / statistiques.total * 100;
+                const pourcentage =
+                    statistiques.trouvees / statistiques.total * 100;
 
-                    const element = document.createElement("li");
+                const pourcentagePopulation =
+                    statistiques.populationTrouvee / statistiques.populationTotale * 100;
 
-                    element.textContent =
-                        `${departement} : ${statistiques.trouvees}/${statistiques.total} (${pourcentage.toFixed(2).replace(".", ",")} %)`;
+                const element = document.createElement("li");
+
+                element.textContent =
+                    `${departement} : ${statistiques.trouvees}/${statistiques.total} (${pourcentage.toFixed(2).replace(".", ",")} %) | ${statistiques.populationTrouvee.toLocaleString("fr-FR")}/${statistiques.populationTotale.toLocaleString("fr-FR")} (${pourcentagePopulation.toFixed(2).replace(".", ",")} %)`;
 
                     fragment.appendChild(element);
                 }
@@ -1851,6 +1930,8 @@
                     const ville = villeEnSuppression;
                     villesTrouvees.delete(ville.code);
                     statistiquesDepartements.get(ville.departement).trouvees--;
+                    statistiquesDepartements.get(ville.departement).populationTrouvee -= ville.population;
+                    populationTrouvee -= ville.population;
 
                     const index = villesAffichees.indexOf(ville);
 
@@ -1873,6 +1954,9 @@
 
                     compteur.textContent =
                         `${villesTrouvees.size} / ${villes.length}`;
+
+                    population.textContent =
+                        `${populationTrouvee.toLocaleString("fr-FR")} / ${populationTotale.toLocaleString("fr-FR")}`;
 
                     villeEnSuppression = null;
 
