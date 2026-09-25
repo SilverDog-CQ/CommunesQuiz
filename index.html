@@ -908,6 +908,15 @@
         const saisiesPersonnalisees = new Map([
             ["LKxKm", [
                 "Château-Chinon"
+            ]],
+            ["WB6gr", [
+                "Trouville"
+            ]],
+            ["N5S1q", [
+                "Carentan"
+            ]],
+            ["iFsGs", [
+                "Le Roulier-devant-Bruyères"
             ]]
         ]);
 
@@ -1654,6 +1663,18 @@
 
                         if (villesAEntrer.length === 0) {
                             messageErreur.textContent = "Commune inconnue !";
+                            messageErreur.classList.add("visible");
+
+                            setTimeout(function() {
+                                messageErreur.classList.remove("visible");
+                            }, 2000);
+
+                            reponse.value = "";
+                            return;
+                        }
+
+                        if (villesAEntrer.every(ville => villesTrouvees.has(ville.code))) {
+                            messageErreur.textContent = "Commune déjà entrée !";
                             messageErreur.classList.add("visible");
 
                             setTimeout(function() {
