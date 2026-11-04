@@ -268,7 +268,8 @@
             display: inline-flex;
             vertical-align: middle;
 
-            margin-left: 8px;
+            margin-left: 2px;
+            margin-right: 4px;
 
             width: 18px;
             height: 18px;
@@ -917,6 +918,9 @@
             ]],
             ["iFsGs", [
                 "Le Roulier-devant-Bruyères"
+            ]],
+            ["xQtC9",[
+                "Trouville"
             ]]
         ]);
 
@@ -929,9 +933,11 @@
         let ordreTri = 1;
         let villes = [];
         let cerclesCommunes = [];
+        let derniereCommuneCercle = null;
         let triActuelDepartements = "nom";
         let ordreTriDepartements = 1;
 
+        const villesAnnulees = [];
         const villesTrouvees = new Set();
         const carteContainer = document.getElementById("carte-container");
         const reponse = document.getElementById("reponse");
@@ -948,6 +954,19 @@
         const villeParCode = new Map();
         const villeParSaisiePersonnalisee = new Map();
         const messageErreur = document.getElementById("message-erreur");
+        let minuterieMessageErreur = null;
+
+        function afficherMessageErreur(texte) {
+            messageErreur.textContent = texte;
+            messageErreur.classList.add("visible");
+
+            clearTimeout(minuterieMessageErreur);
+
+            minuterieMessageErreur = setTimeout(function() {
+                messageErreur.classList.remove("visible");
+                minuterieMessageErreur = null;
+            }, 2000);
+        }
         const listeVillesTrouvees =
             document.getElementById("liste-villes-trouvees");
         const departementSelect = document.getElementById("departement");
@@ -1068,12 +1087,21 @@
                     }
 
                     for (const saisie of saisies) {
-                        villeParSaisiePersonnalisee.set(
-                            normaliserNom(saisie),
-                            ville
-                        );
+                        const nomNormalise = normaliserNom(saisie);
+
+                        if (!villeParSaisiePersonnalisee.has(nomNormalise)) {
+                            villeParSaisiePersonnalisee.set(nomNormalise, []);
+                        }
+
+                        const villesAssociees =
+                            villeParSaisiePersonnalisee.get(nomNormalise);
+
+                        if (!villesAssociees.some(v => v.code === ville.code)) {
+                            villesAssociees.push(ville);
+                        }
                     }
                 }
+
                 const departementsTries = [...departements].sort((a, b) =>
                     a.localeCompare(b, "fr")
                 );
@@ -1122,7 +1150,6 @@
         .then(svg => {
             carteContainer.innerHTML = svg;
 
-            let derniereCommuneCercle = null;
             let groupeEtiquetteVisible = null;
 
             const checkboxSurlignage =
@@ -1587,8 +1614,94 @@
                             `${populationTrouvee.toLocaleString("fr-FR")} / ${populationTotale.toLocaleString("fr-FR")}`;
                     }
                 }
+
                 ajouterVilleDisponible = ajouterVille;
+
+                function annulerDerniereVille() {
+                    if (villesAffichees.length === 0) {
+                        return;
+                    }
+
+                    const ville = villesAffichees.pop();
+                    villesAnnulees.push(ville);
+
+                    villesTrouvees.delete(ville.code);
+
+                    const statistiques = statistiquesDepartements.get(ville.departement);
+                    statistiques.trouvees--;
+                    statistiques.populationTrouvee -= ville.population;
+
+                    populationTrouvee -= ville.population;
+
+                    ville.cercle.remove();
+
+                    const indexCercle = cerclesCommunes.indexOf(ville.cercle);
+
+                    if (indexCercle !== -1) {
+                        cerclesCommunes.splice(indexCercle, 1);
+                    }
+
+                    derniereCommuneCercle =
+                        villesAffichees.length > 0
+                            ? villesAffichees[villesAffichees.length - 1].cercle
+                            : null;
+
+                    if (derniereCommuneCercle) {
+                        derniereCommuneCercle.setAttribute(
+                            "fill",
+                            checkboxSurlignage.checked ? "#FFD700" : "#D90D16"
+                        );
+                    }
+
+                    groupeEtiquetteUnique.style.display = "none";
+                    groupeEtiquetteVisible = null;
+
+                    sauvegarderPartie();
+
+                    afficherListeVilles();
+                    afficherListeDepartements();
+
+                    compteur.textContent =
+                        `${villesTrouvees.size} / ${villes.length}`;
+
+                    population.textContent =
+                        `${populationTrouvee.toLocaleString("fr-FR")} / ${populationTotale.toLocaleString("fr-FR")}`;
+                }
                 
+                document.addEventListener("keydown", function(event) {
+                    if (!event.ctrlKey || event.key.toLowerCase() !== "z") {
+                        return;
+                    }
+
+                    // On conserve le Ctrl+Z normal lorsqu'on écrit dans la barre de saisie.
+                    if (document.activeElement === reponse && reponse.value !== "") {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    annulerDerniereVille();
+                });
+
+                document.addEventListener("keydown", function(event) {
+                    if (!event.ctrlKey || event.key.toLowerCase() !== "y") {
+                        return;
+                    }
+
+                    if (document.activeElement === reponse && reponse.value !== "") {
+                        return;
+                    }
+
+                    event.preventDefault();
+
+                    if (villesAnnulees.length === 0) {
+                        return;
+                    }
+
+                    const ville = villesAnnulees.pop();
+
+                    ajouterVilleDisponible(ville);
+                });
+
                 reponse.addEventListener("keydown", function(event) {
                     if (event.key !== "Enter") {
                         return;
@@ -1608,6 +1721,42 @@
 
                         let villesAEntrer;
 
+                        function fusionnerCommunes(...groupes) {
+                            const communesUniques = new Map();
+
+                            for (const groupe of groupes) {
+                                for (const ville of groupe) {
+                                    communesUniques.set(ville.code, ville);
+                                }
+                            }
+
+                            return [...communesUniques.values()];
+                        }
+
+                        function selectionnerPlusPeuplee(communes) {
+                            if (communes.length === 0) {
+                                return [];
+                            }
+
+                            let plusPeuplee = communes[0];
+
+                            for (const ville of communes) {
+                                if (ville.population > plusPeuplee.population) {
+                                    plusPeuplee = ville;
+                                }
+                            }
+
+                            return [plusPeuplee];
+                        }
+
+                        function obtenirAliases(texte, departement = null) {
+                            const aliases = villeParSaisiePersonnalisee.get(texte) || [];
+
+                            return departement
+                                ? aliases.filter(ville => ville.departement === departement)
+                                : aliases;
+                        }
+
                         if (saisie.includes(",")) {
                             const parties = saisie.split(",");
 
@@ -1620,61 +1769,61 @@
                                 const departement =
                                     departementParNom.get(nomDepartement);
 
-                                const villePersonnalisee =
-                                    villeParSaisiePersonnalisee.get(texte);
-
-                                if (
-                                    villePersonnalisee &&
-                                    departement &&
-                                    villePersonnalisee.departement === departement
-                                ) {
-                                    villesAEntrer = [villePersonnalisee];
+                                if (!departement) {
+                                    villesAEntrer = [];
                                 } else {
-                                    villesAEntrer = departement
-                                        ? villeParNomEtDepartement.get(
+                                    const villesOfficielles =
+                                        villeParNomEtDepartement.get(
                                             `${texte}|${departement}`
-                                        ) || []
-                                        : [];
+                                        ) || [];
+
+                                    const aliases = obtenirAliases(texte, departement);
+
+                                    villesAEntrer = selectionnerPlusPeuplee(
+                                        fusionnerCommunes(villesOfficielles, aliases)
+                                    );
                                 }
                             }
                         } else {
                             const texte = normaliserNom(saisie);
                             const departement = departementSelect.value;
 
-                            const villePersonnalisee =
-                                villeParSaisiePersonnalisee.get(texte);
+                            const aliases = obtenirAliases(
+                                texte,
+                                departement && departement !== "__homonymes__"
+                                    ? departement
+                                    : null
+                            );
 
-                            if (villePersonnalisee) {
-                                villesAEntrer = [villePersonnalisee];
-                            } else if (departement === "__homonymes__") {
-                                villesAEntrer = villesParNom.get(texte) || [];
+                            if (departement === "__homonymes__") {
+                                const villesOfficielles = villesParNom.get(texte) || [];
+
+                                villesAEntrer = fusionnerCommunes(
+                                    villesOfficielles,
+                                    aliases
+                                );
                             } else {
-                                if (departement) {
-                                    villesAEntrer =
-                                        villeParNomEtDepartement.get(
-                                            `${texte}|${departement}`
-                                        ) || [];
-                                } else {
-                                    const ville = villeParNom.get(texte);
-                                    villesAEntrer = ville ? [ville] : [];
-                                }
+                                const villesOfficielles = departement
+                                    ? villeParNomEtDepartement.get(
+                                        `${texte}|${departement}`
+                                    ) || []
+                                    : villesParNom.get(texte) || [];
+
+                                villesAEntrer = selectionnerPlusPeuplee(
+                                    fusionnerCommunes(villesOfficielles, aliases)
+                                );
                             }
                         }
 
                         if (villesAEntrer.length === 0) {
-                            messageErreur.textContent = "Commune inconnue !";
-                            messageErreur.classList.add("visible");
-
-                            setTimeout(function() {
-                                messageErreur.classList.remove("visible");
-                            }, 2000);
+                            afficherMessageErreur("Commune inconnue !");
 
                             reponse.value = "";
                             return;
                         }
 
                         if (villesAEntrer.every(ville => villesTrouvees.has(ville.code))) {
-                            messageErreur.textContent = "Commune déjà entrée !";
+                            afficherMessageErreur("Commune déjà entrée !");
                             messageErreur.classList.add("visible");
 
                             setTimeout(function() {
@@ -1684,6 +1833,8 @@
                             reponse.value = "";
                             return;
                         }
+
+                        villesAnnulees.length = 0;
 
                         for (const ville of villesAEntrer) {
                             ajouterVille(ville);
@@ -1779,8 +1930,8 @@
                             "flex";
                     });
 
-                    elementVille.appendChild(texteVille);
                     elementVille.appendChild(boutonSupprimer);
+                    elementVille.appendChild(texteVille);
 
                     fragment.appendChild(elementVille);
                 });
@@ -1949,7 +2100,9 @@
                     }
 
                     const ville = villeEnSuppression;
+                    villesAnnulees.push(ville);
                     villesTrouvees.delete(ville.code);
+
                     statistiquesDepartements.get(ville.departement).trouvees--;
                     statistiquesDepartements.get(ville.departement).populationTrouvee -= ville.population;
                     populationTrouvee -= ville.population;
@@ -1958,6 +2111,22 @@
 
                     if (index !== -1) {
                         villesAffichees.splice(index, 1);
+                    }
+
+                    if (derniereCommuneCercle === ville.cercle) {
+                        derniereCommuneCercle =
+                            villesAffichees.length > 0
+                                ? villesAffichees[villesAffichees.length - 1].cercle
+                                : null;
+
+                        if (derniereCommuneCercle) {
+                            derniereCommuneCercle.setAttribute(
+                                "fill",
+                                document.getElementById("surlignage-derniere").checked
+                                    ? "#FFD700"
+                                    : "#D90D16"
+                            );
+                        }
                     }
 
                     ville.cercle.remove();
@@ -2086,14 +2255,7 @@
                             location.reload();
 
                         } catch {
-                            messageErreur.textContent =
-                                "Fichier de partie invalide !";
-
-                            messageErreur.classList.add("visible");
-
-                            setTimeout(function() {
-                                messageErreur.classList.remove("visible");
-                            }, 2000);
+                            afficherMessageErreur("Fichier de partie invalide !");
                         }
                     };
 
