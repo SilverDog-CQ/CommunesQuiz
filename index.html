@@ -1605,6 +1605,10 @@
                         sauvegarderPartie();
 
                         afficherListeVilles();
+
+                        const conteneurListe = document.getElementById("conteneur-liste");
+                        conteneurListe.scrollTop = conteneurListe.scrollHeight;
+
                         afficherListeDepartements();
 
                         compteur.textContent =
