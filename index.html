@@ -140,7 +140,7 @@
             position: fixed;
             top: 80px;
             right: 20px;
-            width: 280px;
+            width: 300px;
             height: calc(100vh - 120px);
 
             padding: 20px;
@@ -156,7 +156,7 @@
             position: fixed;
             top: 80px;
             left: 20px;
-            width: 280px;
+            width: 300px;
             height: calc(100vh - 120px);
 
             padding: 20px;
@@ -193,8 +193,46 @@
             gap: 10px;
         }
 
+        #mode-affichage-statistiques {
+            display: flex;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+
+        #mode-affichage-statistiques button {
+            flex: 1;
+            padding: 7px 10px;
+
+            border: 1px solid #002654;
+            background: #2F649E;
+            color: white;
+
+            font-family: "Rubik", sans-serif;
+            font-size: 12px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        #mode-affichage-statistiques button:first-child {
+            border-radius: 4px 0 0 4px;
+        }
+
+        #mode-affichage-statistiques button:last-child {
+            border-radius: 0 4px 4px 0;
+        }
+
+        #mode-affichage-statistiques button.mode-actif {
+            background: #002654;
+            color: white;
+        }
+
+        #mode-affichage-statistiques button:not(.mode-actif):hover {
+            background: #0C316B;
+        }
+
         #conteneur-departements {
-            height: calc(100% - 55px);
+            height: calc(100% - 95px);
             overflow: auto;
 
             padding-right: 0;
@@ -205,6 +243,29 @@
             padding-left: 10px;
         }
 
+        #afficher-departements-label {
+            display: flex;
+            width: 100%;
+            justify-content: center;
+            transform: translateX(-15px);
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 10px;
+            color: #505050;
+            font-size: 12px;
+            white-space: nowrap;
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 4px 0;
+            z-index: 1;
+        }
+
+        #afficher-departements-label input {
+            margin: 0;
+            cursor: pointer;
+        }
+
         #liste-departements-trouves {
             list-style: none;
 
@@ -213,15 +274,101 @@
             padding-left: 0px;
             padding-right: 30px;
 
-            width: max-content;
+            width: 100%;
             min-width: 100%;
 
             font-size: 13px;
         }
 
-        #liste-departements-trouves li {
-            white-space: nowrap;
-            margin-bottom: 4px;
+        #liste-departements-trouves > li {
+            margin-bottom: 12px;
+        }
+
+        .region-item {
+            width: 100%;
+            min-width: 0;
+            border: 2px solid #D0D0D0;
+            border-radius: 5px;
+            overflow: hidden;
+            background: white;
+        }
+
+        .region-entete {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+            padding: 8px;
+            border: none;
+            border-radius: 0;
+            background: #EAEFF5;
+            color: #202020;
+            font-family: inherit;
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .region-entete:hover {
+            background: #D9DEF0;
+        }
+
+        .region-entete,
+        .region-entete * {
+            cursor: pointer;
+        }
+
+        .region-fleche {
+            flex-shrink: 0;
+            margin-top: 2px;
+            font-size: 10px;
+        }
+
+        .region-contenu {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .region-nom {
+            font-weight: bold;
+        }
+
+        .region-statistiques {
+            font-size: 11px;
+            line-height: 1.4;
+            white-space: pre-line;
+        }
+
+        .liste-departements-region {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-width: 0;
+            border-top: 2px solid #D0D0D0;
+        }
+
+        .liste-departements-region li {
+            font-size: 12px;
+            white-space: normal;
+            line-height: 1.4;
+            padding: 8px 12px 8px 24px;
+        }
+
+        .liste-departements-region li + li {
+            border-top: 1px solid #D0D0D0;
+        }
+
+        .liste-departements-region li strong {
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .liste-departements-region li div {
+            font-size: 11px;
+            margin-left: 0;
         }
 
         #titre-liste {
@@ -480,7 +627,7 @@
         }
 
         #boite-chargement {
-            width: 360px;
+            width: 440px;
             padding: 25px;
 
             background: white;
@@ -493,6 +640,67 @@
         #texte-chargement {
             font-size: 18px;
             font-weight: bold;
+        }
+
+        #reinitialiser-sauvegarde {
+            display: none;
+            margin-top: 18px;
+            padding: 10px 18px;
+
+            border: 2px solid black;
+            border-radius: 999px;
+
+            background: #CE1126;
+            color: white;
+
+            font-family: "Rubik", sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        #reinitialiser-sauvegarde:hover {
+            background: #A90E1F;
+        }
+
+        #confirmation-reinitialisation {
+            text-align: center;
+        }
+
+        #confirmation-reinitialisation p {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 18px;
+        }
+
+        #confirmation-reinitialisation button {
+            width: 130px;
+            padding: 10px 12px;
+            margin: 0 4px;
+
+            border: 2px solid black;
+            border-radius: 999px;
+
+            font-family: "Rubik", sans-serif;
+            font-size: 14px;
+            font-weight: bold;
+
+            cursor: pointer;
+        }
+
+        #annuler-reinitialisation {
+            background: #E0E0E0;
+            color: #505050;
+        }
+
+        #confirmer-reinitialisation {
+            background: #CE1126;
+            color: white;
+        }
+
+        #confirmer-reinitialisation:hover {
+            background: #A90E1F;
         }
 
         #boite-confirmation,
@@ -746,6 +954,9 @@
                 width: 120px;
             }
         }
+        .departement-complet {
+            color: #1D963E;
+        }
     </style>
 </head>
 
@@ -753,6 +964,22 @@
     <div id="chargement">
         <div id="boite-chargement">
             <div id="texte-chargement">Chargement...</div>
+
+            <button id="reinitialiser-sauvegarde" type="button" style="display:none; margin-top:18px;">
+                Effacer la sauvegarde et recommencer
+            </button>
+
+            <div id="confirmation-reinitialisation" style="display:none;">
+                <p>Voulez-vous vraiment effacer cette sauvegarde et recommencer ?</p>
+
+                <button id="annuler-reinitialisation" type="button">
+                    Annuler
+                </button>
+
+                <button id="confirmer-reinitialisation" type="button">
+                    Oui, effacer
+                </button>
+            </div>
         </div>
     </div>
 
@@ -799,7 +1026,7 @@
     <div id="panels">
         <div id="liste-departements">
             <div id="titre-departements">
-                <span>Départements</span>
+                <span>Statistiques</span>
 
                 <div id="boutons-tri-departements">
                     <button id="tri-departements-nom" title="Ordre alphabétique">
@@ -816,7 +1043,24 @@
                 </div>
             </div>
 
+            <div id="mode-affichage-statistiques">
+                <button id="mode-regions" class="mode-actif" type="button">
+                    Régions
+                </button>
+                <button id="mode-departements" type="button">
+                    Départements
+                </button>
+            </div>
+
             <div id="conteneur-departements">
+                <label id="afficher-departements-label">
+                    <input
+                        type="checkbox"
+                        id="afficher-departements-non-commences"
+                    >
+                    Départements sans communes
+                </label>
+
                 <ul id="liste-departements-trouves"></ul>
             </div>
         </div>
@@ -936,7 +1180,81 @@
         let derniereCommuneCercle = null;
         let triActuelDepartements = "nom";
         let ordreTriDepartements = 1;
+        const versionBDD = "2026";
+        const migrationsBDD = {};
 
+        function convertirCodesSauvegarde(donnees, versionCible = versionBDD) {
+            let versionSauvegarde;
+            let codes;
+
+            if (Array.isArray(donnees)) {
+                versionSauvegarde = "2026";
+                codes = donnees;
+
+            } else if (
+                donnees &&
+                typeof donnees === "object" &&
+                typeof donnees.versionBDD === "string" &&
+                Array.isArray(donnees.communes)
+            ) {
+                versionSauvegarde = donnees.versionBDD;
+                codes = donnees.communes;
+
+            } else {
+                throw new Error("Format de sauvegarde invalide");
+            }
+
+            let codesActuels = [...new Set(codes.map(String))];
+            let versionActuelle = versionSauvegarde;
+            const versionsDejaParcourues = new Set();
+
+            while (versionActuelle !== versionCible) {
+                if (versionsDejaParcourues.has(versionActuelle)) {
+                    throw new Error("Boucle détectée dans les migrations");
+                }
+
+                versionsDejaParcourues.add(versionActuelle);
+
+                const migration = migrationsBDD[versionActuelle];
+
+                if (!migration) {
+                    throw new Error("Migration de BDD indisponible");
+                }
+
+                const codesConvertis = [];
+
+                for (const code of codesActuels) {
+                    const correspondances = migration.correspondances;
+
+                    if (
+                        !Object.prototype.hasOwnProperty.call(
+                            correspondances,
+                            code
+                        )
+                    ) {
+                        codesConvertis.push(code);
+                        continue;
+                    }
+
+                    const nouvelleValeur = correspondances[code];
+
+                    if (nouvelleValeur === null) {
+                        continue;
+                    }
+
+                    if (Array.isArray(nouvelleValeur)) {
+                        codesConvertis.push(...nouvelleValeur.map(String));
+                    } else {
+                        codesConvertis.push(String(nouvelleValeur));
+                    }
+                }
+
+                codesActuels = [...new Set(codesConvertis)];
+                versionActuelle = migration.versionSuivante;
+            }
+
+            return codesActuels;
+        }
         const villesAnnulees = [];
         const villesTrouvees = new Set();
         const carteContainer = document.getElementById("carte-container");
@@ -946,7 +1264,10 @@
         function sauvegarderPartie() {
             localStorage.setItem(
                 "communesQuizPartie",
-                JSON.stringify([...villesTrouvees])
+                JSON.stringify({
+                    versionBDD: versionBDD,
+                    communes: [...villesTrouvees]
+                })
             );
         }
         const villeParNom = new Map();
@@ -973,6 +1294,110 @@
         const departementParNom = new Map();
         const villeParNomEtDepartement = new Map();
         const statistiquesDepartements = new Map();
+        const departementsParRegion = new Map([
+            ["Auvergne-Rhône-Alpes", [
+                "Ain", "Allier", "Ardèche", "Cantal", "Drôme", "Isère",
+                "Loire", "Haute-Loire", "Métropole de Lyon", "Puy-de-Dôme", "Rhône",
+                "Savoie", "Haute-Savoie"
+            ]],
+            ["Bourgogne-Franche-Comté", [
+                "Côte-d'Or", "Doubs", "Jura", "Nièvre", "Haute-Saône",
+                "Saône-et-Loire", "Yonne", "Territoire de Belfort"
+            ]],
+            ["Bretagne", [
+                "Côtes-d'Armor", "Finistère", "Ille-et-Vilaine", "Morbihan"
+            ]],
+            ["Centre-Val de Loire", [
+                "Cher", "Eure-et-Loir", "Indre", "Indre-et-Loire",
+                "Loir-et-Cher", "Loiret"
+            ]],
+            ["Corse", [
+                "Corse-du-Sud", "Haute-Corse"
+            ]],
+            ["Grand Est", [
+                "Ardennes", "Aube", "Marne", "Haute-Marne",
+                "Meurthe-et-Moselle", "Meuse", "Moselle",
+                "Bas-Rhin", "Haut-Rhin", "Vosges"
+            ]],
+            ["Hauts-de-France", [
+                "Aisne", "Nord", "Oise", "Pas-de-Calais", "Somme"
+            ]],
+            ["Île-de-France", [
+                "Paris", "Seine-et-Marne", "Yvelines", "Essonne",
+                "Hauts-de-Seine", "Seine-Saint-Denis",
+                "Val-de-Marne", "Val-d'Oise"
+            ]],
+            ["Normandie", [
+                "Calvados", "Eure", "Manche", "Orne", "Seine-Maritime"
+            ]],
+            ["Nouvelle-Aquitaine", [
+                "Charente", "Charente-Maritime", "Corrèze", "Creuse",
+                "Dordogne", "Gironde", "Landes", "Lot-et-Garonne",
+                "Pyrénées-Atlantiques", "Deux-Sèvres", "Vienne", "Haute-Vienne"
+            ]],
+            ["Occitanie", [
+                "Ariège", "Aude", "Aveyron", "Gard", "Haute-Garonne",
+                "Gers", "Hérault", "Lot", "Lozère", "Hautes-Pyrénées",
+                "Pyrénées-Orientales", "Tarn", "Tarn-et-Garonne"
+            ]],
+            ["Pays de la Loire", [
+                "Loire-Atlantique", "Maine-et-Loire", "Mayenne",
+                "Sarthe", "Vendée"
+            ]],
+            ["Provence-Alpes-Côte d'Azur", [
+                "Alpes-de-Haute-Provence", "Hautes-Alpes",
+                "Alpes-Maritimes", "Bouches-du-Rhône", "Var", "Vaucluse"
+            ]]
+        ]);
+
+        const regionParDepartement = new Map();
+
+        for (const [region, departementsRegion] of departementsParRegion) {
+            for (const departement of departementsRegion) {
+                regionParDepartement.set(normaliserNom(departement), region);
+            }
+        }
+
+        const regionsOuvertes = new Set();
+
+        let modeAffichageStatistiques = "regions";
+
+        const clePreferenceDepartements =
+            "communesQuizAfficherDepartementsNonCommences";
+
+        let afficherDepartementsNonCommences =
+            localStorage.getItem(clePreferenceDepartements) === "true";
+
+        const caseDepartementsSansCommunes =
+            document.getElementById("afficher-departements-non-commences");
+
+        caseDepartementsSansCommunes.checked =
+            afficherDepartementsNonCommences;
+        
+        function obtenirStatistiquesRegion(region) {
+            const resultat = {
+                total: 0,
+                trouvees: 0,
+                populationTotale: 0,
+                populationTrouvee: 0
+            };
+
+            for (const [departement, statistiques] of statistiquesDepartements) {
+                if (
+                    regionParDepartement.get(normaliserNom(departement)) !== region
+                ) {
+                    continue;
+                }
+
+                resultat.total += statistiques.total;
+                resultat.trouvees += statistiques.trouvees;
+                resultat.populationTotale += statistiques.populationTotale;
+                resultat.populationTrouvee += statistiques.populationTrouvee;
+            }
+
+            return resultat;
+        }
+
         let ajouterVilleDisponible = null;
         let donneesChargees = false;
         let carteChargee = false;
@@ -984,40 +1409,69 @@
 
             if (!partieRestauree) {
                 partieRestauree = true;
-                restaurerPartie();
+
+                if (!restaurerPartie()) {
+                    return;
+                }
             }
 
             document.getElementById("chargement").style.display = "none";
         }
+
         function restaurerPartie() {
-            const sauvegarde = localStorage.getItem("communesQuizPartie");
+            try {
+                const sauvegarde = localStorage.getItem("communesQuizPartie");
 
-            if (!sauvegarde) {
-                return;
-            }
-
-            if (!ajouterVilleDisponible || villeParCode.size === 0) {
-                return;
-            }
-
-            const codes = JSON.parse(sauvegarde);
-
-            for (const code of codes) {
-                const ville = villeParCode.get(String(code));
-
-                if (ville) {
-                    ajouterVilleDisponible(ville, false);
+                if (!sauvegarde) {
+                    return true;
                 }
+
+                if (!ajouterVilleDisponible || villeParCode.size === 0) {
+                    return true;
+                }
+
+                const codes = convertirCodesSauvegarde(
+                    JSON.parse(sauvegarde)
+                );
+
+                const codesInconnus = codes.filter(
+                    code => !villeParCode.has(String(code))
+                );
+
+                if (codesInconnus.length > 0) {
+                    throw new Error("Certaines communes sont introuvables dans la BDD");
+                }
+
+                for (const code of codes) {
+                    const ville = villeParCode.get(String(code));
+
+                    if (ville) {
+                        ajouterVilleDisponible(ville, false);
+                    }
+                }
+
+                sauvegarderPartie();
+
+                afficherListeVilles();
+                afficherListeDepartements();
+
+                compteur.textContent =
+                    `${villesTrouvees.size} / ${villes.length}`;
+
+                population.textContent =
+                    `${populationTrouvee.toLocaleString("fr-FR")} / ${populationTotale.toLocaleString("fr-FR")}`;
+
+                return true;
+
+            } catch {
+                document.getElementById("texte-chargement").innerHTML =
+                    "Impossible de restaurer la sauvegarde.<br>Vous pouvez l'effacer pour recommencer.";
+
+                document.getElementById("reinitialiser-sauvegarde").style.display =
+                    "inline-block";
+
+                return false;
             }
-
-            afficherListeVilles();
-            afficherListeDepartements();
-
-            compteur.textContent =
-                `${villesTrouvees.size} / ${villes.length}`;
-                
-            population.textContent =
-                `${populationTrouvee.toLocaleString("fr-FR")} / ${populationTotale.toLocaleString("fr-FR")}`;
         }
 
         fetch("./villes.json")
@@ -1828,11 +2282,6 @@
 
                         if (villesAEntrer.every(ville => villesTrouvees.has(ville.code))) {
                             afficherMessageErreur("Commune déjà entrée !");
-                            messageErreur.classList.add("visible");
-
-                            setTimeout(function() {
-                                messageErreur.classList.remove("visible");
-                            }, 2000);
 
                             reponse.value = "";
                             return;
@@ -1874,6 +2323,30 @@
 
                     document.getElementById("confirmation-suppression").style.display =
                         "flex";
+                });
+                document.getElementById("reinitialiser-sauvegarde").addEventListener("click", function() {
+                    document.getElementById("texte-chargement").style.display = "none";
+                    this.style.display = "none";
+
+                    document.getElementById("confirmation-reinitialisation").style.display =
+                        "block";
+                });
+
+                document.getElementById("annuler-reinitialisation").addEventListener("click", function() {
+                    document.getElementById("confirmation-reinitialisation").style.display =
+                        "none";
+
+                    document.getElementById("texte-chargement").style.display = "block";
+                    document.getElementById("texte-chargement").innerHTML =
+                        "Impossible de restaurer la sauvegarde.<br>Vous pouvez l'effacer pour recommencer.";
+
+                    document.getElementById("reinitialiser-sauvegarde").style.display =
+                        "inline-block";
+                });
+
+                document.getElementById("confirmer-reinitialisation").addEventListener("click", function() {
+                    localStorage.removeItem("communesQuizPartie");
+                    location.reload();
                 });
                 carteChargee = true;
                 verifierChargement();
@@ -1945,77 +2418,276 @@
             }
             function afficherListeDepartements() {
                 const liste = document.getElementById("liste-departements-trouves");
+                const conteneur = document.getElementById("conteneur-departements");
+                const positionDefilement = conteneur.scrollTop;
 
                 liste.innerHTML = "";
 
                 const fragment = document.createDocumentFragment();
 
-                let departements = [...statistiquesDepartements.keys()];
+                const regions = [...departementsParRegion.keys()];
 
-                if (triActuelDepartements === "nom") {
-                    departements.sort((a, b) => {
+                function comparerElements(a, b, statistiquesA, statistiquesB) {
+                    if (triActuelDepartements === "nom") {
                         const comparaison = a.localeCompare(b, "fr");
 
                         return ordreTriDepartements === 1
                             ? comparaison
                             : -comparaison;
-                    });
-                } else if (triActuelDepartements === "nombre") {
-                    departements.sort((a, b) => {
-                        const comparaison =
-                            statistiquesDepartements.get(b).trouvees -
-                            statistiquesDepartements.get(a).trouvees;
+                    }
 
-                        if (comparaison !== 0) {
-                            return ordreTriDepartements === 1
-                                ? comparaison
-                                : -comparaison;
-                        }
+                    let comparaison;
 
-                        return a.localeCompare(b, "fr");
-                    });
-                } else if (triActuelDepartements === "pourcentage") {
+                    if (triActuelDepartements === "nombre") {
+                        comparaison = statistiquesB.trouvees - statistiquesA.trouvees;
+                    } else {
+                        const pourcentageA = statistiquesA.trouvees / statistiquesA.total;
+                        const pourcentageB = statistiquesB.trouvees / statistiquesB.total;
+
+                        comparaison = pourcentageB - pourcentageA;
+                    }
+
+                    if (comparaison !== 0) {
+                        return ordreTriDepartements === 1
+                            ? comparaison
+                            : -comparaison;
+                    }
+
+                    return a.localeCompare(b, "fr");
+                }
+
+                if (modeAffichageStatistiques === "departements") {
+                    const listeDepartements = document.createElement("ul");
+                    listeDepartements.className = "liste-departements-region";
+
+                    const departements = [...statistiquesDepartements.keys()];
+
                     departements.sort((a, b) => {
                         const statistiquesA = statistiquesDepartements.get(a);
                         const statistiquesB = statistiquesDepartements.get(b);
 
-                        const pourcentageA =
-                            statistiquesA.trouvees / statistiquesA.total;
+                        return comparerElements(a, b, statistiquesA, statistiquesB);
+                    });
 
-                        const pourcentageB =
-                            statistiquesB.trouvees / statistiquesB.total;
+                    for (const departement of departements) {
+                        const statistiques = statistiquesDepartements.get(departement);
 
-                        const comparaison = pourcentageB - pourcentageA;
-
-                        if (comparaison !== 0) {
-                            return ordreTriDepartements === 1
-                                ? comparaison
-                                : -comparaison;
+                        if (!afficherDepartementsNonCommences && statistiques.trouvees === 0) {
+                            continue;
                         }
 
-                        return a.localeCompare(b, "fr");
-                    });
+                        const pourcentage =
+                            statistiques.trouvees / statistiques.total * 100;
+
+                        const pourcentagePopulation =
+                            statistiques.populationTotale > 0
+                                ? statistiques.populationTrouvee /
+                                    statistiques.populationTotale * 100
+                                : 0;
+
+                        const elementDepartement = document.createElement("li");
+
+                        const nomDepartement = document.createElement("strong");
+                        const departementComplet =
+                            statistiques.trouvees === statistiques.total &&
+                            statistiques.total > 0;
+
+                        nomDepartement.textContent =
+                            departementComplet ? `✓ ${departement}` : departement;
+
+                        if (departementComplet) {
+                            nomDepartement.classList.add("departement-complet");
+                        }
+
+                        const statistiquesCommunes = document.createElement("div");
+                        statistiquesCommunes.textContent =
+                            `Communes : ${statistiques.trouvees}/${statistiques.total} (${pourcentage.toFixed(2).replace(".", ",")}%)`;
+
+                        const statistiquesPopulation = document.createElement("div");
+                        statistiquesPopulation.textContent =
+                            `Pop. : ${statistiques.populationTrouvee.toLocaleString("fr-FR")}/${statistiques.populationTotale.toLocaleString("fr-FR")} (${pourcentagePopulation.toFixed(2).replace(".", ",")}%)`;
+
+                        elementDepartement.appendChild(nomDepartement);
+                        elementDepartement.appendChild(statistiquesCommunes);
+                        elementDepartement.appendChild(statistiquesPopulation);
+
+                        listeDepartements.appendChild(elementDepartement);
+                    }
+
+                    fragment.appendChild(listeDepartements);
+                    liste.appendChild(fragment);
+                    conteneur.scrollTop = positionDefilement;
+
+                    return;
                 }
 
-                for (const departement of departements) {
-                    const statistiques = statistiquesDepartements.get(departement);
+                regions.sort((a, b) => {
+                    const statistiquesA = obtenirStatistiquesRegion(a);
+                    const statistiquesB = obtenirStatistiquesRegion(b);
 
-                const pourcentage =
-                    statistiques.trouvees / statistiques.total * 100;
+                    return comparerElements(a, b, statistiquesA, statistiquesB);
+                });
 
-                const pourcentagePopulation =
-                    statistiques.populationTrouvee / statistiques.populationTotale * 100;
+                for (const region of regions) {
+                    const statistiquesRegion = obtenirStatistiquesRegion(region);
 
-                const element = document.createElement("li");
+                    const pourcentageRegion =
+                        statistiquesRegion.trouvees / statistiquesRegion.total * 100;
 
-                element.textContent =
-                    `${departement} : ${statistiques.trouvees}/${statistiques.total} (${pourcentage.toFixed(2).replace(".", ",")} %) | ${statistiques.populationTrouvee.toLocaleString("fr-FR")}/${statistiques.populationTotale.toLocaleString("fr-FR")} (${pourcentagePopulation.toFixed(2).replace(".", ",")} %)`;
+                    const pourcentagePopulationRegion =
+                        statistiquesRegion.populationTotale > 0
+                            ? statistiquesRegion.populationTrouvee /
+                                statistiquesRegion.populationTotale * 100
+                            : 0;
 
-                    fragment.appendChild(element);
+                    const regionOuverte = regionsOuvertes.has(region);
+
+                    const elementRegion = document.createElement("li");
+                    elementRegion.className = "region-item";
+
+                    const boutonRegion = document.createElement("button");
+                    boutonRegion.type = "button";
+                    boutonRegion.className = "region-entete";
+                    boutonRegion.setAttribute("aria-expanded", String(regionOuverte));
+
+                    const fleche = document.createElement("span");
+                    fleche.className = "region-fleche";
+                    fleche.textContent = regionOuverte ? "▼" : "▼";
+                    fleche.style.transform = regionOuverte ? "rotate(0deg)" : "rotate(-90deg)";
+
+                    const contenuRegion = document.createElement("span");
+                    contenuRegion.className = "region-contenu";
+
+                    const nomRegion = document.createElement("span");
+                    nomRegion.className = "region-nom";
+                    nomRegion.textContent = region;
+
+                    const texteStatistiquesRegion = document.createElement("span");
+                    texteStatistiquesRegion.className = "region-statistiques";
+
+                    texteStatistiquesRegion.textContent =
+                        `Communes : ${statistiquesRegion.trouvees}/${statistiquesRegion.total} (${pourcentageRegion.toFixed(2).replace(".", ",")}%)\n` +
+                        `Pop. : ${statistiquesRegion.populationTrouvee.toLocaleString("fr-FR")}/${statistiquesRegion.populationTotale.toLocaleString("fr-FR")} (${pourcentagePopulationRegion.toFixed(2).replace(".", ",")}%)`;
+                    
+                    contenuRegion.appendChild(nomRegion);
+                    contenuRegion.appendChild(texteStatistiquesRegion);
+
+                    boutonRegion.appendChild(fleche);
+                    boutonRegion.appendChild(contenuRegion);
+
+                    boutonRegion.addEventListener("click", function() {
+                        if (regionsOuvertes.has(region)) {
+                            regionsOuvertes.delete(region);
+                        } else {
+                            regionsOuvertes.add(region);
+                        }
+
+                        afficherListeDepartements();
+                    });
+
+                    elementRegion.appendChild(boutonRegion);
+
+                    if (regionOuverte) {
+                        const listeDepartementsRegion = document.createElement("ul");
+                        listeDepartementsRegion.className = "liste-departements-region";
+
+                        const departementsRegion = [
+                            ...departementsParRegion.get(region)
+                        ];
+
+                        departementsRegion.sort((a, b) => {
+                            const statistiquesA = statistiquesDepartements.get(a);
+                            const statistiquesB = statistiquesDepartements.get(b);
+
+                            return comparerElements(a, b, statistiquesA, statistiquesB);
+                        });
+
+                        for (const departement of departementsRegion) {
+                            const statistiques = statistiquesDepartements.get(departement);
+
+                            if (
+                                !afficherDepartementsNonCommences &&
+                                statistiques.trouvees === 0
+                            ) {
+                                continue;
+                            }
+
+                            const pourcentage =
+                                statistiques.trouvees / statistiques.total * 100;
+
+                            const pourcentagePopulation =
+                                statistiques.populationTotale > 0
+                                    ? statistiques.populationTrouvee /
+                                        statistiques.populationTotale * 100
+                                    : 0;
+
+                            const elementDepartement = document.createElement("li");
+
+                            const nomDepartement = document.createElement("strong");
+                            const departementComplet =
+                                statistiques.trouvees === statistiques.total &&
+                                statistiques.total > 0;
+
+                            nomDepartement.textContent =
+                                departementComplet ? `✓ ${departement}` : departement;
+
+                            if (departementComplet) {
+                                nomDepartement.classList.add("departement-complet");
+                            }
+
+                            const statistiquesCommunes = document.createElement("div");
+                            statistiquesCommunes.textContent =
+                                `Communes : ${statistiques.trouvees}/${statistiques.total} (${pourcentage.toFixed(2).replace(".", ",")}%)`;
+
+                            const statistiquesPopulation = document.createElement("div");
+                            statistiquesPopulation.textContent =
+                                `Pop. : ${statistiques.populationTrouvee.toLocaleString("fr-FR")}/${statistiques.populationTotale.toLocaleString("fr-FR")} (${pourcentagePopulation.toFixed(2).replace(".", ",")}%)`;
+                            elementDepartement.appendChild(nomDepartement);
+                            elementDepartement.appendChild(statistiquesCommunes);
+                            elementDepartement.appendChild(statistiquesPopulation);
+
+                            listeDepartementsRegion.appendChild(elementDepartement);
+                        }
+
+                        if (listeDepartementsRegion.children.length > 0) {
+                            elementRegion.appendChild(listeDepartementsRegion);
+                        }
+                    }
+
+                    fragment.appendChild(elementRegion);
                 }
 
                 liste.appendChild(fragment);
+
+                conteneur.scrollTop = positionDefilement;
             }
+            caseDepartementsSansCommunes.addEventListener("change", function() {
+                afficherDepartementsNonCommences = this.checked;
+
+                localStorage.setItem(
+                    clePreferenceDepartements,
+                    String(this.checked)
+                );
+
+                afficherListeDepartements();
+            });
+            document.getElementById("mode-regions").addEventListener("click", function() {
+                modeAffichageStatistiques = "regions";
+
+                document.getElementById("mode-regions").classList.add("mode-actif");
+                document.getElementById("mode-departements").classList.remove("mode-actif");
+
+                afficherListeDepartements();
+            });
+
+            document.getElementById("mode-departements").addEventListener("click", function() {
+                modeAffichageStatistiques = "departements";
+
+                document.getElementById("mode-departements").classList.add("mode-actif");
+                document.getElementById("mode-regions").classList.remove("mode-actif");
+
+                afficherListeDepartements();
+            });
             document.getElementById("tri-entree").addEventListener("click", function() {
                 if (triActuel === "entree") {
                     ordreTri *= -1;
@@ -2168,7 +2840,20 @@
                     return;
                 }
 
-                document.getElementById("confirmer-suppression").click();
+                const boutonAnnuler =
+                    document.getElementById("annuler-suppression");
+
+                const boutonConfirmer =
+                    document.getElementById("confirmer-suppression");
+
+                if (
+                    event.target === boutonAnnuler ||
+                    event.target === boutonConfirmer
+                ) {
+                    return;
+                }
+
+                boutonConfirmer.click();
             });
             document.getElementById("import-export").addEventListener(
                 "click",
@@ -2191,10 +2876,19 @@
                 "click",
                 function() {
                     const sauvegarde =
-                        localStorage.getItem("communesQuizPartie") || "[]";
+                        localStorage.getItem("communesQuizPartie");
+
+                    const codes = sauvegarde
+                        ? convertirCodesSauvegarde(JSON.parse(sauvegarde))
+                        : [];
+
+                    const donneesExportees = {
+                        versionBDD: versionBDD,
+                        communes: codes
+                    };
 
                     const fichier = new Blob(
-                        [JSON.stringify(JSON.parse(sauvegarde), null, 2)],
+                        [JSON.stringify(donneesExportees, null, 2)],
                         { type: "application/json" }
                     );
 
@@ -2205,7 +2899,9 @@
                     lien.download = "CommunesQuiz_partie.json";
                     lien.click();
 
-                    URL.revokeObjectURL(url);
+                    setTimeout(function() {
+                        URL.revokeObjectURL(url);
+                    }, 1000);
 
                     document.getElementById("menu-import-export").style.display =
                         "none";
@@ -2237,13 +2933,7 @@
                         try {
                             const donnees = JSON.parse(lecteur.result);
 
-                            if (!Array.isArray(donnees)) {
-                                throw new Error();
-                            }
-
-                            const codes = [
-                                ...new Set(donnees.map(code => String(code)))
-                            ];
+                            const codes = convertirCodesSauvegarde(donnees);
 
                             for (const code of codes) {
                                 if (!villeParCode.has(code)) {
@@ -2253,7 +2943,10 @@
 
                             localStorage.setItem(
                                 "communesQuizPartie",
-                                JSON.stringify(codes)
+                                JSON.stringify({
+                                    versionBDD: versionBDD,
+                                    communes: codes
+                                })
                             );
 
                             location.reload();
