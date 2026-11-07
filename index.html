@@ -2560,7 +2560,17 @@
 
                     const nomRegion = document.createElement("span");
                     nomRegion.className = "region-nom";
-                    nomRegion.textContent = region;
+
+                    const regionComplete =
+                        statistiquesRegion.trouvees === statistiquesRegion.total &&
+                        statistiquesRegion.total > 0;
+
+                    nomRegion.textContent =
+                        regionComplete ? `✓ ${region}` : region;
+
+                    if (regionComplete) {
+                        nomRegion.classList.add("departement-complet");
+                    }
 
                     const texteStatistiquesRegion = document.createElement("span");
                     texteStatistiquesRegion.className = "region-statistiques";
