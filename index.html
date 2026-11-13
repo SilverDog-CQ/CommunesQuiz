@@ -2060,8 +2060,10 @@
 
                         afficherListeVilles();
 
-                        const conteneurListe = document.getElementById("conteneur-liste");
-                        conteneurListe.scrollTop = conteneurListe.scrollHeight;
+                        if (!(triActuel === "entree" && ordreTri === -1)) {
+                            const conteneurListe = document.getElementById("conteneur-liste");
+                            conteneurListe.scrollTop = conteneurListe.scrollHeight;
+                        }
 
                         afficherListeDepartements();
 
@@ -2131,7 +2133,14 @@
                         return;
                     }
 
-                    // On conserve le Ctrl+Z normal lorsqu'on écrit dans la barre de saisie.
+                    const confirmation =
+                        document.getElementById("confirmation-suppression");
+
+                    if (confirmation.style.display === "flex") {
+                        event.preventDefault();
+                        return;
+                    }
+
                     if (document.activeElement === reponse && reponse.value !== "") {
                         return;
                     }
@@ -2142,6 +2151,14 @@
 
                 document.addEventListener("keydown", function(event) {
                     if (!event.ctrlKey || event.key.toLowerCase() !== "y") {
+                        return;
+                    }
+
+                    const confirmation =
+                        document.getElementById("confirmation-suppression");
+
+                    if (confirmation.style.display === "flex") {
+                        event.preventDefault();
                         return;
                     }
 
